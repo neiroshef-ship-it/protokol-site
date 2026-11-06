@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ПРОТОКОЛ — ИИ-контроль потерь ресторана на данных iiko</title>
+<meta name="description" content="Каждое утро показывает управляющему, где ресторан вчера потерял деньги: фудкост, списания, скидки, недостачи. Бесплатный пилот 30 дней">
+
+<!-- Превью ссылки в Telegram и WhatsApp -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="ПРОТОКОЛ — ИИ-контроль потерь ресторана на данных iiko">
+<meta property="og:description" content="Каждое утро показывает управляющему, где ресторан вчера потерял деньги: фудкост, списания, скидки, недостачи. Бесплатный пилот 30 дней">
+<!-- ПОСЛЕ ПУБЛИКАЦИИ: заменить на полный адрес, например https://ваш-сайт.ru/avatar1.png -->
+<meta property="og:image" content="avatar1.png">
+
+<link rel="icon" href="avatar1.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Unbounded:wght@700&display=swap">
+
+<style>
+  /* Все цвета — здесь. Поменял значение — поменялось на всём сайте. */
+  :root {
+    --bg-1: #1a1410;           /* тёмно-коричневый */
+    --bg-2: #1f1f22;           /* графит */
+    --glow: rgba(242, 163, 58, .13);
+    --ink: #f3ece4;            /* основной текст */
+    --muted: #b9ada0;          /* приглушённый текст */
+    --accent: #f2a33a;         /* шафрановый акцент ПРОТОКОЛА */
+    --accent-ink: #1d1408;     /* текст на акцентной кнопке */
+    --card: rgba(255, 255, 255, .05);
+    --line: rgba(243, 236, 228, .14);
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; }
+  html { background: var(--bg-2); }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    color: var(--ink);
+    font-family: Manrope, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background:
+      radial-gradient(ellipse 80% 45% at 50% 0%, var(--glow), transparent 70%),
+      linear-gradient(165deg, var(--bg-1) 0%, var(--bg-2) 100%);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px 28px;
+  }
+  .card { width: 100%; max-width: 420px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+
+  .avatar {
+    width: 104px; height: 104px;
+    border-radius: 50%;
+    object-fit: cover;              /* фото не сплющится в круге */
+    border: 2px solid var(--accent);
+    box-shadow: 0 0 0 6px rgba(242, 163, 58, .1), 0 0 36px rgba(242, 163, 58, .28);
+    background: #2a2420;
+  }
+  .logo {
+    margin: 20px 0 6px;
+    font-family: Unbounded, system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 34px;
+    letter-spacing: .5px;
+    line-height: 1.1;
+  }
+  .logo span { color: var(--accent); }
+  .by { margin: 0 0 14px; font-size: 15px; color: var(--muted); }
+  .about { margin: 0 0 18px; font-size: 16px; line-height: 1.5; color: var(--ink); }
+  .about span { display: block; color: var(--muted); }
+
+  .badge {
+    display: inline-block;
+    margin: 0 0 22px;
+    padding: 8px 14px;
+    font-size: 14px; font-weight: 600;
+    color: var(--accent);
+    border: 1px solid rgba(242, 163, 58, .45);
+    background: rgba(242, 163, 58, .08);
+    border-radius: 999px;
+  }
+
+  .links { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; min-height: 52px; padding: 12px 18px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink);
+    font-size: 16px; font-weight: 600;
+    text-decoration: none;
+    transition: transform .15s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn svg { width: 22px; height: 22px; flex: none; color: var(--accent); }
+  .btn:hover { transform: translateY(-2px); border-color: rgba(242, 163, 58, .6); background: rgba(255, 255, 255, .08); }
+  .btn:active { transform: scale(.98); }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .btn--main { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); box-shadow: 0 8px 24px rgba(242, 163, 58, .25); }
+  .btn--main svg { color: var(--accent-ink); }
+  .btn--main:hover { background: #f5b153; border-color: #f5b153; box-shadow: 0 10px 28px rgba(242, 163, 58, .35); }
+
+  .how { width: 100%; margin-top: 34px; }
+  .how h2 { margin: 0 0 6px; font-family: Unbounded, system-ui, sans-serif; font-size: 20px; font-weight: 700; }
+  .how iframe {
+    display: block; width: 100%; max-width: 420px; margin: 0 auto;
+    border: 0; background: transparent;
+    height: calc(min(100vw - 40px, 420px) * .64 + 185px);   /* сцена + подпись, без прокрутки внутри */
+  }
+
+  .trust { list-style: none; margin: 26px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; text-align: left; }
+  .trust li { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); }
+  .trust svg { width: 18px; height: 18px; flex: none; color: var(--accent); }
+
+  footer { margin-top: 34px; font-size: 12px; color: rgba(185, 173, 160, .6); }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px);
+    padding: 10px 16px; border-radius: 999px;
+    background: #2b241e; border: 1px solid rgba(242, 163, 58, .5); color: var(--ink);
+    font-size: 14px; font-weight: 600;
+    opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  /* плавное появление по очереди */
+  .reveal { opacity: 0; transform: translateY(12px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .btn, .toast { transition: none; }
+  }
+
+
+  /* ---------- блок «Проверьте свой ресторан» ---------- */
+  .tools { width: 100%; margin-top: 30px; text-align: left; }
+  .tools h2 { margin: 0 0 14px; text-align: center; font-family: Unbounded, system-ui, sans-serif; font-size: 20px; font-weight: 700; }
+  .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 5px; border-radius: 14px; background: rgba(255,255,255,.05); border: 1px solid var(--line); }
+  .tab { min-height: 44px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); font: 600 14px/1.2 Manrope, system-ui, sans-serif; cursor: pointer; padding: 6px 4px; }
+  .tab[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
+  .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .panel { margin-top: 12px; padding: 18px; border-radius: var(--radius); background: var(--card); border: 1px solid var(--line); }
+  .panel[hidden] { display: none; }
+  .muted { color: var(--muted); font-size: 14px; line-height: 1.5; margin: 0; }
+  .cta-small { display: inline-flex; align-items: center; justify-content: center; width: 100%; min-height: 48px; margin-top: 14px; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 15px; text-decoration: none; }
+  /* самопроверка */
+  .q-progress { display: flex; gap: 4px; margin-bottom: 14px; }
+  .q-progress span { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,.12); }
+  .q-progress span.done { background: var(--accent); }
+  .q-zone { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
+  .q-text { font-size: 18px; font-weight: 700; line-height: 1.35; margin: 0 0 16px; min-height: 50px; }
+  .q-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .q-btns button { min-height: 48px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255,255,255,.06); color: var(--ink); font: 700 16px Manrope, system-ui, sans-serif; cursor: pointer; }
+  .q-btns button:hover { border-color: rgba(242,163,58,.6); }
+  .zones { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .zone { padding: 7px 12px; border-radius: 999px; font-size: 14px; font-weight: 700; }
+  .zone.risk { background: rgba(255,90,78,.15); color: #ffb3aa; border: 1px solid rgba(255,90,78,.5); }
+  .zone.ok { background: rgba(120,220,160,.1); color: #a8e6c0; border: 1px solid rgba(120,220,160,.35); }
+  .link-btn { background: none; border: 0; color: var(--muted); font: 600 14px Manrope, system-ui, sans-serif; text-decoration: underline; cursor: pointer; padding: 8px 0 0; }
+  /* калькулятор */
+  .field { display: block; margin-bottom: 14px; }
+  .field span { display: block; font-size: 14px; color: var(--muted); margin-bottom: 6px; }
+  .field input[type="text"], .field input[type="number"] { width: 100%; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line); background: rgba(0,0,0,.25); color: var(--ink); font: 700 18px Manrope, system-ui, sans-serif; }
+  .field input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .range-row { display: flex; align-items: center; gap: 12px; }
+  .range-row input { flex: 1; accent-color: var(--accent); }
+  .range-row b { min-width: 44px; text-align: right; font-size: 18px; }
+  .result { padding: 14px; border-radius: 12px; background: rgba(242,163,58,.08); border: 1px solid rgba(242,163,58,.35); }
+  .result p { margin: 0; font-size: 15px; line-height: 1.5; }
+  .result .big { font-family: Unbounded, system-ui, sans-serif; font-size: 24px; color: var(--accent); margin: 4px 0 8px; }
+  /* пример сводки */
+  .tg { border-radius: 16px; background: #1e1a17; border: 1px solid var(--line); padding: 14px; }
+  .tg-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .tg-ava { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-family: Unbounded, sans-serif; font-weight: 700; }
+  .tg-head b { display: block; font-size: 15px; } .tg-head small { color: var(--muted); font-size: 12px; }
+  .tg-msg { background: #2b241e; border-radius: 4px 14px 14px 14px; padding: 12px 14px; font-size: 14px; line-height: 1.55; }
+  .tg-msg .z { font-weight: 700; margin-top: 8px; display: block; }
+  .tg-msg .bad { color: #ffb3aa; } .tg-msg .idea { color: var(--accent); }
+
+  @media (min-width: 480px) {
+    .avatar { width: 120px; height: 120px; }
+    .logo { font-size: 38px; }
+  }
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="card">
+
+    <img class="avatar reveal" src="avatar1.png" alt="Николай, автор ПРОТОКОЛА" width="120" height="120">
+
+    <h1 class="logo reveal">ПРОТО<span>КОЛ</span></h1>
+    <p class="by reveal">Николай · шеф-повар, 5 лет на кухне</p>
+
+    <p class="about reveal">
+      ИИ-контроль потерь ресторана на&nbsp;данных&nbsp;iiko.
+      <span>Каждое утро — где вчера ушли деньги: фудкост, списания, скидки, недостачи.</span>
+    </p>
+
+    <div class="badge reveal">Бесплатный пилот на&nbsp;30&nbsp;дней</div>
+
+    <nav class="links" aria-label="Связаться">
+      <!-- Telegram -->
+      <a class="btn btn--main reveal" href="https://t.me/Panda_koal" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3c.3-1.2-.9-2.2-2-1.7L2.8 9.3c-1.2.5-1.1 2.2.1 2.6l4.3 1.4 1.7 5.3c.3.9 1.4 1.2 2.1.5l2.4-2.3 4.4 3.2c.9.7 2.2.2 2.5-.9L21.9 4.3zM9.6 13.2l7.9-5.8-6.2 6.8-.3 3-1.4-4z"/></svg>
+        Написать в Telegram
+      </a>
+
+      <!-- WhatsApp: номер только цифрами, без + и пробелов; текст после ?text= — готовое первое сообщение -->
+      <a class="btn reveal" href="https://wa.me/79958993803?text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5!%20%D0%A5%D0%BE%D1%87%D1%83%20%D1%83%D0%B7%D0%BD%D0%B0%D1%82%D1%8C%20%D0%BF%D1%80%D0%BE%20%D0%BF%D0%B8%D0%BB%D0%BE%D1%82%20%D0%9F%D0%A0%D0%9E%D0%A2%D0%9E%D0%9A%D0%9E%D0%9B%D0%90" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>
+        Написать в WhatsApp
+      </a>
+
+      <!-- Почта: тот же адрес — в переменной EMAIL внизу, в <script> -->
+      <a class="btn reveal" id="mailBtn" href="mailto:neiroshef@gmail.com?subject=%D0%9F%D0%B8%D0%BB%D0%BE%D1%82%20%D0%9F%D0%A0%D0%9E%D0%A2%D0%9E%D0%9A%D0%9E%D0%9B%D0%90">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+        Написать на почту
+      </a>
+
+      <!-- Презентация: protokol.pdf (положить файл в ту же папку, что index.html) -->
+      <a class="btn reveal" href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>
+        Презентация ПРОТОКОЛА (PDF)
+      </a>
+    </nav>
+
+    <section class="how reveal" aria-labelledby="howTitle">
+      <h2 id="howTitle">Как работает ПРОТОКОЛ</h2>
+      <iframe src="protokol-3d.html" title="Как работает ПРОТОКОЛ" loading="lazy"></iframe>
+    </section>
+
+    <section class="tools reveal" aria-labelledby="toolsTitle">
+      <h2 id="toolsTitle">Проверьте свой ресторан</h2>
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" id="t-check" aria-controls="p-check" aria-selected="true">Самопроверка</button>
+        <button class="tab" role="tab" id="t-calc" aria-controls="p-calc" aria-selected="false">Калькулятор</button>
+        <button class="tab" role="tab" id="t-demo" aria-controls="p-demo" aria-selected="false">Пример сводки</button>
+      </div>
+
+      <!-- 1. Самопроверка: 7 вопросов, в конце — зоны риска -->
+      <div class="panel" role="tabpanel" id="p-check" aria-labelledby="t-check">
+        <div id="quiz">
+          <div class="q-progress" id="qProgress" aria-hidden="true"></div>
+          <p class="q-zone" id="qZone"></p>
+          <p class="q-text" id="qText"></p>
+          <div class="q-btns"><button type="button" data-a="1">Да</button><button type="button" data-a="0">Нет</button></div>
+        </div>
+        <div id="quizResult" hidden>
+          <p class="q-text" id="rTitle"></p>
+          <div class="zones" id="rZones"></div>
+          <p class="muted" id="rText"></p>
+          <a class="cta-small" href="https://t.me/Panda_koal" target="_blank" rel="noopener">Обсудить в Telegram</a>
+          <button type="button" class="link-btn" id="qRestart">Пройти заново</button>
+        </div>
+      </div>
+
+      <!-- 2. Калькулятор: обычная арифметика на цифрах владельца -->
+      <div class="panel" role="tabpanel" id="p-calc" aria-labelledby="t-calc" hidden>
+        <label class="field"><span>Выручка в месяц, ₽</span><input type="text" inputmode="numeric" id="cRev" value="3 000 000" autocomplete="off"></label>
+        <label class="field"><span>На сколько процентов снизить фудкост</span>
+          <div class="range-row"><input type="range" id="cPct" min="0.5" max="5" step="0.5" value="2"><b id="cPctOut">2%</b></div></label>
+        <div class="result" aria-live="polite">
+          <p>Каждый 1% фудкоста — это</p>
+          <p class="big" id="cOne">30 000 ₽ в месяц</p>
+          <p id="cMore">Минус 2% — это <b>60 000 ₽ в месяц</b> и <b>720 000 ₽ в год</b>.</p>
+        </div>
+        <p class="muted" style="margin-top:10px">Это расчёт на ваших цифрах, а не обещание. Где именно уходят проценты — покажет ПРОТОКОЛ.</p>
+        <a class="cta-small" href="https://t.me/Panda_koal" target="_blank" rel="noopener">Найти мои проценты</a>
+      </div>
+
+      <!-- 3. Пример утренней сводки в Telegram -->
+      <div class="panel" role="tabpanel" id="p-demo" aria-labelledby="t-demo" hidden>
+        <div class="tg">
+          <div class="tg-head"><div class="tg-ava" aria-hidden="true">П</div><div><b>ПРОТОКОЛ</b><small>бот · сегодня в 10:00</small></div></div>
+          <div class="tg-msg">
+            <b>Сводка за вчера</b><br>
+            Выручка 84 077 ₽ (−18,7% к обычному дню)<br>
+            Фудкост 27,8%, списания 12 750 ₽
+            <span class="z">🔪 Кухня</span><span class="bad">• Списания ×6,7 — 10 850 ₽ разово</span>
+            <span class="z">🧮 Учёт</span><span class="bad">• Касса −3 400 ₽ в смене</span>
+            <span class="z idea">💡 Идея для выручки</span>«Коктейль» — фудкост 24%, а заказывают редко. Поднять в меню.
+          </div>
+        </div>
+        <p class="muted" style="margin-top:10px">Пример на учебных данных. Так выглядит сообщение, которое управляющий получает каждое утро.</p>
+        <a class="cta-small" href="https://t.me/Panda_koal" target="_blank" rel="noopener">Хочу такую сводку</a>
+      </div>
+    </section>
+
+    <ul class="trust reveal">
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>Только чтение iiko — ничего не меняет</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>Данные остаются у ресторана</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>ИИ не видит имён сотрудников</li>
+    </ul>
+
+    <footer>© ПРОТОКОЛ, 2026</footer>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite">Почта скопирована</div>
+
+<script>
+  // ВСТАВЬ СВОЮ ПОЧТУ СЮДА (она копируется в буфер обмена по кнопке «Написать на почту»)
+  const EMAIL = 'neiroshef@gmail.com';
+
+  // 1. Плавное появление элементов по очереди
+  const items = document.querySelectorAll('.reveal');
+  items.forEach((el, i) => setTimeout(() => el.classList.add('in'), 120 + i * 90));
+
+  // 2. Почта: открыть почтовую программу и скопировать адрес
+  const mailBtn = document.getElementById('mailBtn');
+  const toast = document.getElementById('toast');
+  if (EMAIL) mailBtn.href = 'mailto:' + EMAIL + '?subject=' + encodeURIComponent('Пилот ПРОТОКОЛА');
+  mailBtn.addEventListener('click', () => {
+    if (!EMAIL || !navigator.clipboard) return;
+    navigator.clipboard.writeText(EMAIL).then(() => {
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }).catch(() => {});
+  });
+  // 4. Вкладки «Проверьте свой ресторан»
+  const tabs = [...document.querySelectorAll('.tab')];
+  tabs.forEach(t => t.addEventListener('click', () => {
+    tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); document.getElementById(x.getAttribute('aria-controls')).hidden = !on; });
+  }));
+
+  // 5. Самопроверка: «Нет» = зона риска
+  const QUESTIONS = [
+    ['kitchen', 'Техкарты обновлялись за последние 3 месяца?'],
+    ['kitchen', 'Вы знаете сумму списаний за прошлую неделю?'],
+    ['kitchen', 'Сразу замечаете, когда поставщик поднимает цену?'],
+    ['hall', 'Каждую неделю проверяете скидки и удаления после пречека?'],
+    ['hall', 'Знаете, какой день недели у вас самый слабый по выручке?'],
+    ['count', 'Инвентаризация проходит хотя бы раз в месяц?'],
+    ['count', 'Расхождения в кассе разбирают в тот же день?'],
+  ];
+  const ZN = { kitchen: 'Кухня', hall: 'Зал', count: 'Учёт' };
+  let qi = 0, risks = { kitchen: 0, hall: 0, count: 0 };
+  const qProgress = document.getElementById('qProgress');
+  QUESTIONS.forEach(() => qProgress.append(document.createElement('span')));
+  function showQ() {
+    document.getElementById('qZone').textContent = `${ZN[QUESTIONS[qi][0]]} · вопрос ${qi + 1} из ${QUESTIONS.length}`;
+    document.getElementById('qText').textContent = QUESTIONS[qi][1];
+    [...qProgress.children].forEach((s, i) => s.classList.toggle('done', i < qi));
+  }
+  document.querySelectorAll('.q-btns button').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.a === '0') risks[QUESTIONS[qi][0]]++;
+    qi++; if (qi < QUESTIONS.length) showQ(); else showResult();
+  }));
+  function showResult() {
+    document.getElementById('quiz').hidden = true; document.getElementById('quizResult').hidden = false;
+    const bad = Object.keys(risks).filter(k => risks[k] > 0);
+    document.getElementById('rTitle').textContent = bad.length ? `Зоны риска: ${bad.length} из 3` : 'Вы держите всё под контролем';
+    document.getElementById('rZones').innerHTML = Object.keys(ZN).map(k => `<span class="zone ${risks[k] ? 'risk' : 'ok'}">${ZN[k]}${risks[k] ? ' — риск' : ' — ок'}</span>`).join('');
+    document.getElementById('rText').textContent = bad.length
+      ? 'Там, где вы ответили «нет», деньги чаще всего уходят незаметно. Именно эти места ПРОТОКОЛ проверяет каждый день — и приносит сумму в рублях.'
+      : 'Отличный результат. ПРОТОКОЛ поможет держать этот уровень без ручных проверок — каждое утро одной сводкой.';
+  }
+  document.getElementById('qRestart').addEventListener('click', () => {
+    qi = 0; risks = { kitchen: 0, hall: 0, count: 0 };
+    document.getElementById('quiz').hidden = false; document.getElementById('quizResult').hidden = true; showQ();
+  });
+  showQ();
+
+  // 6. Калькулятор: 1% фудкоста = 1% выручки
+  const cRev = document.getElementById('cRev'), cPct = document.getElementById('cPct');
+  const rub = v => Math.round(v).toLocaleString('ru-RU').replace(/ /g, ' ') + ' ₽';
+  function calc() {
+    const digits = cRev.value.replace(/\D/g, '').slice(0, 10);
+    cRev.value = digits ? Number(digits).toLocaleString('ru-RU').replace(/ /g, ' ') : '';
+    const rev = Number(digits) || 0, pct = Number(cPct.value);
+    const pctTxt = String(pct).replace('.', ',') + '%';
+    document.getElementById('cPctOut').textContent = pctTxt;
+    document.getElementById('cOne').textContent = `${rub(rev * .01)} в месяц`;
+    document.getElementById('cMore').innerHTML = `Минус ${pctTxt} — это <b>${rub(rev * pct / 100)} в месяц</b> и <b>${rub(rev * pct / 100 * 12)} в год</b>.`;
+  }
+  cRev.addEventListener('input', calc); cPct.addEventListener('input', calc); calc();
+
+</script>
+</body>
+</html>

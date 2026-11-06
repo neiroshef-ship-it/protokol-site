@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ПРОТОКОЛ — как это работает</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&family=Unbounded:wght@600;700&display=swap">
+<!--
+  ПРОТОКОЛ: живая 3D-схема для сайта-визитки.
+  Встраивается в index.html так:
+  <iframe src="protokol-3d.html" title="Как работает ПРОТОКОЛ" loading="lazy"></iframe>
+  Фон прозрачный — под ним виден фон сайта. Анимация сама ставится на паузу,
+  когда блок не виден на экране, и не запускается при «уменьшить движение».
+  Нажатие на сцену или на точку — следующий / выбранный шаг.
+-->
+<style>
+  :root {
+    --ink: #f3ece4;
+    --muted: #b9ada0;
+    --accent: #f2a33a;
+    --line: rgba(242, 163, 58, .28);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: transparent; color: var(--ink); font-family: Manrope, system-ui, sans-serif; overflow: hidden; }
+  .wrap { display: flex; flex-direction: column; gap: 10px; padding: 4px 2px 6px; }
+  canvas { display: block; width: 100%; aspect-ratio: 10 / 6.4; cursor: pointer; touch-action: manipulation; }
+  .cap { text-align: center; min-height: 66px; padding: 0 8px; }
+  .cap h2 { margin: 0 0 4px; font: 700 15px/1.3 Manrope, system-ui, sans-serif; color: var(--ink); }
+  .cap h2 b { color: var(--accent); font-weight: 700; }
+  .cap p { margin: 0; font-size: 13.5px; line-height: 1.4; color: var(--muted); }
+  .dots { display: flex; justify-content: center; gap: 4px; }
+  .dots button { width: 28px; height: 28px; padding: 0; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
+  .dots button::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: rgba(243, 236, 228, .25); transition: width .25s, background .25s; }
+  .dots button[aria-current="step"]::before { width: 22px; border-radius: 4px; background: var(--accent); }
+  .dots button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  .note { text-align: center; font-size: 11px; line-height: 1.5; color: rgba(185, 173, 160, .7); }
+  .note .hint { font-weight: 600; font-size: 12px; color: rgba(242, 163, 58, .85); }
+  @media (min-width: 520px) { .cap h2 { font-size: 16px; } .cap p { font-size: 14px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <canvas id="scene" role="img" aria-label="Схема ресторана: зал, кухня, учёт, iiko и ПРОТОКОЛ"></canvas>
+  <div class="cap" aria-live="polite"><h2 id="capTitle"></h2><p id="capText"></p></div>
+  <div class="dots" id="dots" role="group" aria-label="Шаги"></div>
+  <div class="note"><b class="hint">Нажмите на зону — покажу, что там проверяется</b><br>Суммы на схеме — пример на учебных данных</div>
+</div>
+<script>
+(() => {
+const STEPS = [
+  { t: 'Ресторан работает как обычно', d: 'Гости платят, кухня готовит и списывает, на склад приходят накладные.' },
+  { t: 'Всё уже записано в iiko', d: 'Чеки, скидки, удаления, списания, приходы — ресторан и так ведёт их в iiko.' },
+  { t: 'ПРОТОКОЛ читает iiko раз в час', d: 'Отдельным пользователем только на чтение. Ничего не меняет.' },
+  { t: '20 проверок ищут потери', d: 'Сравнивают каждый день с обычным уровнем ресторана. Каждая находка — в рублях.' },
+  { t: 'В 10:00 — сводка управляющему', d: 'Одно сообщение в Telegram: что случилось вчера и что проверить.' },
+  { t: 'Данные остаются у ресторана', d: 'Сервер ресторана в России. Имена сотрудников ИИ не видит.' },
+];
+const ZONES = {
+  hall:    { x0: 0, y0: 0, x1: 6,  y1: 5, color: '#7cc4ff' },
+  kitchen: { x0: 6, y0: 0, x1: 10, y1: 5, color: '#ff8a5c' },
+  store:   { x0: 6, y0: 5, x1: 10, y1: 9, color: '#c9a7ff' },
+  office:  { x0: 0, y0: 5, x1: 6,  y1: 9, color: '#3fc1b0' },
+};
+const PROBLEMS = {
+  kitchen: ['Списания 10 850 ₽', 'Карбонара +9,4%', 'Сливки +31%'],
+  hall:    ['Скидки 36 449 ₽/мес', 'Удаления после пречека'],
+  store:   ['Касса −3 400 ₽', 'Бар −3 840 ₽'],
+};
+const EVENTS = {
+  hall:    ['чек 2 340 ₽', 'скидка 15%', 'возврат 620 ₽'],
+  kitchen: ['списано 1,2 кг лосося', 'порча: зелень'],
+  store:   ['приход: сливки 6 л', 'инвентаризация'],
+};
+const PT = { pos: [5.4, 1.4, .7], bin: [6.9, 3.9, .45], desk: [7.0, 6.5, .75], iiko: [1.4, 6.4, 1.45], core: [3.6, 7.1, 1.0] };
+
+const cv = document.getElementById('scene');
+const ctx = cv.getContext('2d');
+const bg = document.createElement('canvas');
+const bctx = bg.getContext('2d');
+let W = 0, H = 0, DPR = 1, TW = 64, TH = 32, ZU = 36, OX = 0, OY = 0;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function P(x, y, z = 0) { return [OX + (x - y) * TW / 2, OY + (x + y) * TH / 2 - z * ZU]; }
+function hex(c) { const n = parseInt(c.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+function shade(c, k) { const [r, g, b] = hex(c); const f = v => Math.round(k >= 0 ? v + (255 - v) * k : v * (1 + k)); return `rgb(${f(r)},${f(g)},${f(b)})`; }
+function rgba(c, a) { const [r, g, b] = hex(c); return `rgba(${r},${g},${b},${a})`; }
+function poly(g, pts, fill, stroke, lw = 1) {
+  g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath();
+  if (fill) { g.fillStyle = fill; g.fill(); }
+  if (stroke) { g.strokeStyle = stroke; g.lineWidth = lw; g.stroke(); }
+}
+function box(g, x, y, z, w, d, h, c) {
+  const edge = 'rgba(0,0,0,.25)';
+  poly(g, [P(x, y + d, z), P(x + w, y + d, z), P(x + w, y + d, z + h), P(x, y + d, z + h)], shade(c, -0.28), edge);
+  poly(g, [P(x + w, y, z), P(x + w, y + d, z), P(x + w, y + d, z + h), P(x + w, y, z + h)], shade(c, -0.45), edge);
+  poly(g, [P(x, y, z + h), P(x + w, y, z + h), P(x + w, y + d, z + h), P(x, y + d, z + h)], shade(c, 0.06), edge);
+}
+function rr(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+
+// ---------- static scene
+const OBJECTS = [];
+const add = (x, y, z, w, d, h, c, extra) => OBJECTS.push({ x, y, z, w, d, h, c, extra });
+for (const [tx, ty] of [[1, 1], [3, 1], [1, 3], [3, 3]]) { add(tx + .15, ty + .15, 0, .7, .7, .42, '#8b5e3c'); add(tx - .15, ty + .35, 0, .22, .3, .25, '#4a5568'); add(tx + .93, ty + .35, 0, .22, .3, .25, '#4a5568'); }
+add(5.1, .3, 0, .7, 2.2, .62, '#6b4a33', 'pos');
+add(6.25, .2, 0, .75, .75, 1.45, '#b8c4cc'); add(7.2, .2, 0, 2.3, .8, .58, '#5c6670', 'stove'); add(8.9, 1.4, 0, .75, 2.2, .52, '#a7b3bb');
+add(6.75, 3.85, 0, .42, .42, .42, '#3b4a3f'); add(7.6, 2.0, 0, .9, .6, .5, '#a7b3bb');
+add(9.25, 5.3, 0, .6, 3.4, 1.3, '#7a6a55', 'shelf'); add(7.0, 8.35, 0, 2.1, .5, 1.2, '#7a6a55', 'shelf2'); add(6.4, 6.1, 0, 1.1, .7, .55, '#5b5248');
+add(8.1, 6.9, 0, .5, .5, .4, '#9c7b54'); add(1.0, 6.0, 0, .8, .8, 1.45, '#1e7d72', 'iiko'); add(3.0, 6.5, 0, 1.2, 1.2, .9, '#3a3122'); add(4.6, 7.6, 0, 1.0, .6, .5, '#5b5248');
+const WALL = '#2c2a2e';
+add(5.94, 0, 0, .12, 1.6, .55, WALL); add(5.94, 2.7, 0, .12, 2.3, .55, WALL); add(0, 4.94, 0, 2.3, .12, .55, WALL); add(3.4, 4.94, 0, 2.6, .12, .55, WALL);
+add(6, 4.94, 0, 1.5, .12, .55, WALL); add(8.6, 4.94, 0, 1.4, .12, .55, WALL); add(5.94, 5, 0, .12, 1.2, .55, WALL); add(5.94, 7.3, 0, .12, 1.7, .55, WALL);
+const FLOOR = { hall: ['#3b2f27', '#433529'], kitchen: ['#2b3337', '#31393d'], store: ['#332e28', '#39332c'], office: ['#2a2a30', '#303036'] };
+function zoneAt(x, y) { for (const [k, z] of Object.entries(ZONES)) if (x >= z.x0 && x < z.x1 && y >= z.y0 && y < z.y1) return k; return null; }
+
+function drawStatic() {
+  bctx.setTransform(DPR, 0, 0, DPR, 0, 0); bctx.clearRect(0, 0, W, H);
+  poly(bctx, [P(-.4, -.4), P(10.4, -.4), P(10.4, 9.4), P(-.4, 9.4)], 'rgba(0,0,0,.35)');
+  for (let x = 0; x < 10; x++) for (let y = 0; y < 9; y++) poly(bctx, [P(x, y), P(x + 1, y), P(x + 1, y + 1), P(x, y + 1)], FLOOR[zoneAt(x + .5, y + .5)][(x + y) % 2], 'rgba(0,0,0,.18)');
+  box(bctx, 0, -.18, 0, 10, .18, 1.1, '#38322e'); box(bctx, -.18, -.18, 0, .18, 9.18, 1.1, '#38322e');
+  [...OBJECTS].sort((a, b) => (a.x + a.w / 2 + a.y + a.d / 2) - (b.x + b.w / 2 + b.y + b.d / 2)).forEach(o => {
+    box(bctx, o.x, o.y, o.z, o.w, o.d, o.h, o.c);
+    if (o.extra === 'stove') for (let i = 0; i < 3; i++) { const [cx, cy] = P(o.x + .4 + i * .75, o.y + .4, o.z + o.h); bctx.beginPath(); bctx.ellipse(cx, cy, TW * .12, TH * .12, 0, 0, 6.283); bctx.fillStyle = '#1b2026'; bctx.fill(); bctx.strokeStyle = '#ff7a3c66'; bctx.stroke(); }
+    if (o.extra === 'pos') box(bctx, 5.25, 1.2, .62, .3, .3, .28, '#12181f');
+    if (o.extra === 'shelf' || o.extra === 'shelf2') { const hz = o.extra === 'shelf2'; for (let i = 0; i < 6; i++) { const k = (i + .5) / 6; box(bctx, hz ? o.x + k * o.w - .12 : o.x + .05, hz ? o.y + .05 : o.y + k * o.d - .12, o.h * .45, hz ? .22 : .3, hz ? .3 : .22, .22, ['#c98c4a', '#8fb36a', '#d9c27a'][i % 3]); } }
+    if (o.extra === 'iiko') for (let i = 0; i < 4; i++) { const [lx, ly] = P(o.x + o.w, o.y + .15 + i * .15, o.z + .2); bctx.fillStyle = i % 2 ? '#7dffe8' : '#2affd4'; bctx.fillRect(lx - TW * .06, ly - 2, 3, 3); }
+  });
+}
+
+// ---------- people
+function person(x, y, color, t) {
+  const [sx, sy] = P(x, y, 0); const s = TW / 64; const bob = reduce ? 0 : Math.sin(t * 6 + x * 3) * 1.2 * s;
+  ctx.beginPath(); ctx.ellipse(sx, sy, 7 * s, 3.5 * s, 0, 0, 6.283); ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fill();
+  rr(ctx, sx - 5 * s, sy - 20 * s + bob, 10 * s, 16 * s, 4 * s); ctx.fillStyle = color; ctx.fill();
+  ctx.beginPath(); ctx.arc(sx, sy - 25 * s + bob, 5 * s, 0, 6.283); ctx.fillStyle = '#f1d3b5'; ctx.fill();
+}
+function route(points, speed) { const segs = []; let L = 0; for (let i = 0; i < points.length; i++) { const a = points[i], b = points[(i + 1) % points.length]; const l = Math.hypot(b[0] - a[0], b[1] - a[1]); segs.push([a, b, l]); L += l; } return { segs, L, speed }; }
+function along(p, t) { let d = (t * p.speed) % p.L; for (const [a, b, l] of p.segs) { if (d <= l) { const k = d / l; return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]; } d -= l; } return p.segs[0][0]; }
+const WALKERS = [
+  { p: route([[4.6, 1.2], [2.6, 2.6], [0.8, 2.4], [2.6, .6]], .55), c: '#2f2f3a' },
+  { p: route([[8.0, 1.25], [8.6, 1.4], [8.3, 3.2], [7.3, 3.4]], .45), c: '#e8e8e8' },
+  { p: route([[8.6, 5.8], [8.7, 7.9], [7.8, 7.6]], .3), c: '#5b6b7d' },
+];
+const SITTERS = [[1.2, 1.5, '#a0525a'], [3.9, 1.6, '#4f7aa3'], [1.0, 3.6, '#6b8f5a'], [3.2, 3.9, '#b07a3a'], [6.9, 6.85, '#5b6b7d'], [5.0, 8.3, '#c58a35']];
+
+// ---------- dynamic layer
+const STEP_MS = 6000;
+let step = 0, stepStart = 0, lastSpawn = 0, running = false, visible = true, raf = 0;
+const packets = [], chips = [];
+const pick = a => a[Math.floor(Math.random() * a.length)];
+function spawnPacket(a, b, color, toPhone) { packets.push({ a, b, color, t0: performance.now(), dur: 1400 + Math.random() * 400, toPhone }); }
+function spawnChip(zone, text, kind, stay) {
+  if (chips.some(c => c.text === text || c.zone === zone) || (!stay && chips.length >= 2)) return; // one chip per zone, two at most: no overlaps
+  const [x, y] = { hall: [3.4, 2.4], kitchen: [8.2, 3.2], store: [8.0, 7.2] }[zone]; // fixed spots: chips never cover each other or the labels
+  chips.push({ zone, x, y, text, kind, t0: performance.now() - (stay ? 600 : 0), dur: stay ? 1e9 : (kind === 'problem' ? 3400 : 2300) });
+}
+function spawn(now) {
+  const gap = [950, 560, 450, 1000, 700, 99999][step];
+  if (now - lastSpawn < gap) return; lastSpawn = now;
+  if (step === 0) { const z = pick(['hall', 'kitchen', 'store']); spawnChip(z, pick(EVENTS[z]), 'event'); }
+  if (step === 1) { const [src, col] = pick([[PT.pos, ZONES.hall.color], [PT.bin, ZONES.kitchen.color], [PT.desk, ZONES.store.color]]); spawnPacket(src, PT.iiko, col); }
+  if (step === 2) spawnPacket(PT.iiko, PT.core, '#3fc1b0');
+  if (step === 3) { const z = pick(['kitchen', 'hall', 'store', 'kitchen']); spawnChip(z, pick(PROBLEMS[z]), 'problem'); }
+  if (step === 4) spawnPacket(PT.core, null, '#f2a33a', true);
+}
+function phonePos() { return [W - TW * .75, TH * 1.25]; }
+function drawPacket(pk, now) {
+  const k = Math.min(1, (now - pk.t0) / pk.dur); const e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+  let sx, sy;
+  if (pk.toPhone) { const [ax, ay] = P(...pk.a); const [bx, by] = phonePos(); sx = ax + (bx - ax) * e; sy = ay + (by - ay) * e - Math.sin(Math.PI * e) * TW * .6; }
+  else { const x = pk.a[0] + (pk.b[0] - pk.a[0]) * e, y = pk.a[1] + (pk.b[1] - pk.a[1]) * e, z = pk.a[2] + (pk.b[2] - pk.a[2]) * e + Math.sin(Math.PI * e) * 1.6; [sx, sy] = P(x, y, z); }
+  const r = Math.max(4, TW * .08);
+  ctx.save(); ctx.shadowColor = pk.color; ctx.shadowBlur = 12; ctx.beginPath(); ctx.moveTo(sx, sy - r); ctx.lineTo(sx + r, sy); ctx.lineTo(sx, sy + r); ctx.lineTo(sx - r, sy); ctx.closePath(); ctx.fillStyle = pk.color; ctx.fill(); ctx.restore();
+  return k >= 1;
+}
+function drawChip(c, now) {
+  const k = (now - c.t0) / c.dur; if (k >= 1) return true;
+  const a = k < .12 ? k / .12 : k > .8 ? (1 - k) / .2 : 1;
+  const [sx, sy] = P(c.x, c.y, 1.0 + Math.min(k, .5) * 1.2);
+  const fs = Math.max(10, TW * (c.kind === 'problem' ? .2 : .17)), bad = c.kind === 'problem';
+  ctx.save(); ctx.globalAlpha = a; ctx.font = `${bad ? 700 : 600} ${fs}px Manrope, system-ui, sans-serif`;
+  const w = ctx.measureText(c.text).width + fs * 1.4, h = fs * 1.9;
+  const x = Math.max(4, Math.min(W - w - 4, sx - w / 2));
+  rr(ctx, x, sy - h / 2, w, h, h / 2); ctx.fillStyle = bad ? 'rgba(52,20,14,.94)' : 'rgba(28,24,22,.9)'; ctx.fill();
+  ctx.strokeStyle = bad ? '#ff6b5e' : 'rgba(255,255,255,.18)'; ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.fillStyle = bad ? '#ffd2cc' : '#efe7de'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText((bad ? '● ' : '') + c.text, x + w / 2, sy + 1); ctx.restore();
+  return false;
+}
+function zoneOutline(key, alpha, lw) { const z = ZONES[key]; poly(ctx, [P(z.x0, z.y0), P(z.x1, z.y0), P(z.x1, z.y1), P(z.x0, z.y1)], rgba(z.color, alpha * .16), rgba(z.color, alpha), lw); }
+function label(text, x, y, z, color, big) {
+  const [sx, sy] = P(x, y, z); const fs = Math.max(9, TW * (big ? .22 : .17));
+  ctx.save(); ctx.font = `600 ${fs}px Unbounded, system-ui, sans-serif`; const w = ctx.measureText(text).width + fs * 1.2, h = fs * 1.85;
+  const lx = Math.max(2, Math.min(W - w - 2, sx - w / 2));
+  rr(ctx, lx, sy - h / 2, w, h, 6); ctx.fillStyle = 'rgba(20,16,14,.86)'; ctx.fill(); ctx.strokeStyle = rgba(color, .85); ctx.lineWidth = 1; ctx.stroke();
+  ctx.fillStyle = color; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, lx + w / 2, sy + 1); ctx.restore();
+}
+function drawPhone(t, lit) {
+  const [px, py] = phonePos(); const w = TW * .55, h = TW * .95;
+  ctx.save(); if (lit) { ctx.shadowColor = '#f2a33a'; ctx.shadowBlur = 18 + 8 * Math.sin(t * 4); }
+  rr(ctx, px - w / 2, py - h / 2, w, h, w * .18); ctx.fillStyle = '#1a1614'; ctx.fill(); ctx.strokeStyle = lit ? '#f2a33a' : 'rgba(243,236,228,.35)'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore();
+  ctx.fillStyle = lit ? 'rgba(242,163,58,.85)' : 'rgba(243,236,228,.2)';
+  for (let i = 0; i < 3; i++) { rr(ctx, px - w * .32, py - h * .28 + i * h * .2, w * (i === 1 ? .5 : .64), h * .09, 2); ctx.fill(); }
+}
+
+function frame(now) {
+  raf = 0;
+  const t = now / 1000;
+  if (focus && now > focusUntil) { focus = null; setStep(step); }
+  if (!reduce && !focus && now - stepStart > STEP_MS) setStep((step + 1) % STEPS.length);
+  if (!reduce && !focus) spawn(now);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.clearRect(0, 0, W, H); ctx.drawImage(bg, 0, 0, W, H);
+  const pulse = reduce ? .6 : .55 + .25 * Math.sin(t * 3);
+  if (focus) zoneOutline(focus, .95, 3);
+  else ({ 0: ['hall', 'kitchen', 'store'], 1: ['hall', 'kitchen', 'store'], 2: ['office'], 3: ['hall', 'kitchen', 'store'], 4: ['office'], 5: [] })[step].forEach(k => zoneOutline(k, pulse, 2));
+  if (step === 5) poly(ctx, [P(-.3, -.3), P(10.3, -.3), P(10.3, 9.3), P(-.3, 9.3)], null, rgba('#f2a33a', .6 + (reduce ? .2 : .3 * Math.sin(t * 2.5))), 3);
+  if (step === 3 && !reduce) { const x = ((t * .35) % 1) * 10; poly(ctx, [P(x, 0, .02), P(x + .25, 0, .02), P(x + .25, 9, .02), P(x, 9, .02)], 'rgba(242,163,58,.2)'); }
+  const [cx, cy] = P(3.6, 7.1, .9), pu = reduce ? .5 : (Math.sin(t * 3) + 1) / 2;
+  ctx.save(); ctx.globalCompositeOperation = 'lighter'; const grd = ctx.createRadialGradient(cx, cy, 2, cx, cy, TW * (1.1 + pu * .3)); grd.addColorStop(0, 'rgba(242,163,58,.55)'); grd.addColorStop(1, 'rgba(242,163,58,0)'); ctx.fillStyle = grd; ctx.fillRect(cx - TW * 2, cy - TW * 2, TW * 4, TW * 4); ctx.restore();
+  for (const [x, y, c] of SITTERS) person(x, y, c, t);
+  for (const w of WALKERS) { const [x, y] = reduce ? w.p.segs[0][0] : along(w.p, t); person(x, y, w.c, t); }
+  if (step >= 4) drawPhone(t, step === 4);
+  for (let i = packets.length - 1; i >= 0; i--) if (drawPacket(packets[i], now)) packets.splice(i, 1);
+  label('ЗАЛ', 2.6, -.2, 1.15, ZONES.hall.color);
+  label('КУХНЯ', 8.1, -.2, 1.55, ZONES.kitchen.color);
+  label('УЧЁТ', 10.1, 7.0, .9, ZONES.store.color);
+  label('iiko', 1.2, 6.2, 2.2, '#3fc1b0');
+  label('ПРОТОКОЛ', 3.9, 7.4, 1.6, '#f2a33a', true);
+  if (step === 2) label('только чтение', 1.6, 5.4, 3.0, '#3fc1b0');
+  for (let i = chips.length - 1; i >= 0; i--) if (drawChip(chips[i], now)) chips.splice(i, 1);
+  if (running) raf = requestAnimationFrame(frame);
+}
+
+// ---------- caption, dots, controls
+const dots = document.getElementById('dots');
+STEPS.forEach((s, i) => { const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-label', `Шаг ${i + 1}: ${s.t}`); b.addEventListener('click', () => setStep(i)); dots.append(b); });
+function setStep(i) {
+  if (typeof focus !== 'undefined' && focus && performance.now() <= focusUntil) { focus = null; }
+  step = i; stepStart = performance.now(); lastSpawn = 0; packets.length = 0; chips.length = 0;
+  document.getElementById('capTitle').innerHTML = `<b>${i + 1}.</b> ${STEPS[i].t}`;
+  document.getElementById('capText').textContent = STEPS[i].d;
+  [...dots.children].forEach((b, k) => b.setAttribute('aria-current', k === i ? 'step' : 'false'));
+  if (reduce) { // still picture that still tells the step
+    if (i <= 1) ['hall', 'kitchen', 'store'].forEach(z => spawnChip(z, EVENTS[z][0], 'event', true));
+    if (i === 3) ['hall', 'kitchen', 'store'].forEach(z => spawnChip(z, PROBLEMS[z][0], 'problem', true));
+    requestAnimationFrame(frame);
+  }
+}
+// tap on a zone: show what ПРОТОКОЛ checks there (7 s), tap elsewhere: next step
+const ZONE_INFO = {
+  kitchen: ['Кухня', 'Списания выше обычного · рост фудкоста · подорожание у поставщика · блюдо дешевле себестоимости'],
+  hall: ['Зал', 'Скидки и удаления после пречека · падение выручки и среднего чека · возвраты'],
+  store: ['Учёт', 'Недостачи по инвентаризации · расхождения в кассе · блюда без техкарт'],
+  office: ['iiko и ПРОТОКОЛ', 'Здесь ПРОТОКОЛ раз в час читает iiko — только чтение, ничего не меняет'],
+};
+let focus = null, focusUntil = 0;
+function showZone(k) {
+  focus = k; focusUntil = performance.now() + 7000; packets.length = 0; chips.length = 0;
+  document.getElementById('capTitle').innerHTML = `<b>${ZONE_INFO[k][0]}</b> — что проверяет ПРОТОКОЛ`;
+  document.getElementById('capText').textContent = ZONE_INFO[k][1];
+  if (reduce || !running) requestAnimationFrame(frame);
+}
+cv.addEventListener('click', e => {
+  const r = cv.getBoundingClientRect(); let k = null;
+  for (const z of [0, .5, 1, 1.5]) { // a tap on furniture or a label sits above the floor: try a few heights
+    const a = (e.clientX - r.left - OX) / (TW / 2), b = (e.clientY - r.top - OY + z * ZU) / (TH / 2);
+    k = zoneAt((a + b) / 2, (b - a) / 2); if (k) break; }
+  if (k) showZone(k); else { focus = null; setStep((step + 1) % STEPS.length); }
+});
+
+function start() { if (reduce || running || !visible || document.hidden) return; running = true; stepStart = performance.now() - (stepStart ? 0 : 0); raf = requestAnimationFrame(frame); }
+function stop() { running = false; if (raf) cancelAnimationFrame(raf); raf = 0; }
+document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+if ('IntersectionObserver' in window) new IntersectionObserver(es => { visible = es[0].isIntersecting; visible ? start() : stop(); }, { threshold: .15 }).observe(cv);
+
+function resize() {
+  const r = cv.getBoundingClientRect(); W = r.width; H = r.height; DPR = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); bg.width = cv.width; bg.height = cv.height;
+  TW = Math.min(W / 10.6, H / 5.5); TH = TW / 2; ZU = TH * 1.15;
+  OX = W / 2 - .5 * TW / 2; OY = (H - 9.5 * TH) / 2 + .7 * ZU;
+  drawStatic(); if (!running) requestAnimationFrame(frame);
+}
+new ResizeObserver(resize).observe(cv);
+document.fonts && document.fonts.ready.then(resize);
+resize(); setStep(reduce ? 3 : 0); start();
+})();
+</script>
+</body>
+</html>

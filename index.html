@@ -34,7 +34,7 @@
   }
 
   * { box-sizing: border-box; }
-  html { background: var(--bg-2); }
+  html { background: var(--bg-2); scroll-behavior: smooth; }
   body {
     margin: 0;
     min-height: 100vh;
@@ -189,6 +189,30 @@
   .tg-msg .z { font-weight: 700; margin-top: 8px; display: block; }
   .tg-msg .bad { color: #ffb3aa; } .tg-msg .idea { color: var(--accent); }
 
+  /* ---------- форма заявки ---------- */
+  .lead { width: 100%; margin-top: 30px; text-align: left; scroll-margin-top: 20px; }
+  .lead h2 { margin: 0 0 6px; text-align: center; font-family: Unbounded, system-ui, sans-serif; font-size: 20px; font-weight: 700; }
+  .lead .sub { margin: 0 0 14px; text-align: center; }
+  .lead form { padding: 18px; border-radius: var(--radius); background: var(--card); border: 1px solid var(--line); }
+  .lead .field input, .lead .field textarea { width: 100%; min-height: 48px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: rgba(0,0,0,.25); color: var(--ink); font: 600 16px/1.4 Manrope, system-ui, sans-serif; }
+  .lead .field textarea { min-height: 84px; resize: vertical; }
+  .lead .field input::placeholder, .lead .field textarea::placeholder { color: rgba(185,173,160,.55); font-weight: 400; }
+  .lead .field input:focus, .lead .field textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .lead .field b { color: var(--accent); }
+  .consent { display: flex; gap: 10px; align-items: flex-start; margin: 4px 0 14px; font-size: 13px; line-height: 1.45; color: var(--muted); cursor: pointer; }
+  .consent input { width: 20px; height: 20px; flex: none; margin: 0; accent-color: var(--accent); }
+  .consent a { color: var(--ink); }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }   /* ловушка для ботов */
+  .lead button[type="submit"] { width: 100%; min-height: 52px; border: 0; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font: 700 16px Manrope, system-ui, sans-serif; cursor: pointer; box-shadow: 0 8px 24px rgba(242,163,58,.25); }
+  .lead button[type="submit"]:disabled { opacity: .6; cursor: wait; }
+  .lead button[type="submit"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .form-msg { margin: 12px 0 0; font-size: 14px; line-height: 1.5; text-align: center; }
+  .form-msg.err { color: #ffb3aa; }
+  .form-msg a { color: var(--ink); }
+  .thanks { padding: 22px 18px; border-radius: var(--radius); text-align: center; background: rgba(242,163,58,.08); border: 1px solid rgba(242,163,58,.35); }
+  .thanks b { display: block; font-family: Unbounded, system-ui, sans-serif; font-size: 18px; color: var(--accent); margin-bottom: 6px; }
+  .thanks p { margin: 0; font-size: 15px; line-height: 1.5; }
+
   @media (min-width: 480px) {
     .avatar { width: 120px; height: 120px; }
     .logo { font-size: 38px; }
@@ -216,6 +240,12 @@
       <a class="btn btn--main reveal" href="https://t.me/Panda_koal" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3c.3-1.2-.9-2.2-2-1.7L2.8 9.3c-1.2.5-1.1 2.2.1 2.6l4.3 1.4 1.7 5.3c.3.9 1.4 1.2 2.1.5l2.4-2.3 4.4 3.2c.9.7 2.2.2 2.5-.9L21.9 4.3zM9.6 13.2l7.9-5.8-6.2 6.8-.3 3-1.4-4z"/></svg>
         Написать в Telegram
+      </a>
+
+      <!-- Заявка: прокручивает к форме внизу -->
+      <a class="btn reveal" href="#lead">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4h6M9 4a2 2 0 0 0-2 2v0H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-1v0a2 2 0 0 0-2-2M9 13l2 2 4-4"/></svg>
+        Оставить заявку
       </a>
 
       <!-- WhatsApp: номер только цифрами, без + и пробелов; текст после ?text= — готовое первое сообщение -->
@@ -296,6 +326,27 @@
         </div>
         <p class="muted" style="margin-top:10px">Пример на учебных данных. Так выглядит сообщение, которое управляющий получает каждое утро.</p>
         <a class="cta-small" href="https://t.me/Panda_koal" target="_blank" rel="noopener">Хочу такую сводку</a>
+      </div>
+    </section>
+
+    <!-- Форма заявки: отправляется в Cloudflare-воркер, он пересылает её в Telegram -->
+    <section class="lead reveal" id="lead" aria-labelledby="leadTitle">
+      <h2 id="leadTitle">Оставить заявку</h2>
+      <p class="muted sub">Отвечу в течение дня и расскажу, как пройдёт пилот в вашем ресторане.</p>
+      <form id="leadForm" novalidate>
+        <label class="field"><span>Как к вам обращаться</span><input type="text" name="name" maxlength="80" autocomplete="name" placeholder="Имя"></label>
+        <label class="field"><span>Telegram или телефон <b>*</b></span><input type="text" name="contact" maxlength="80" autocomplete="tel" placeholder="@username или +7…" required></label>
+        <label class="field"><span>Ресторан</span><input type="text" name="restaurant" maxlength="120" autocomplete="organization" placeholder="Название и район"></label>
+        <label class="field"><span>Комментарий</span><textarea name="message" maxlength="600" placeholder="Например: хотим понять, куда уходит фудкост"></textarea></label>
+        <!-- ловушка: человек это поле не видит, бот заполняет -->
+        <div class="hp" aria-hidden="true"><label>Сайт<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+        <label class="consent"><input type="checkbox" name="consent" required><span>Согласен на обработку персональных данных по <a href="privacy.html" target="_blank" rel="noopener">политике конфиденциальности</a></span></label>
+        <button type="submit" id="leadBtn">Отправить заявку</button>
+        <p class="form-msg" id="leadMsg" role="status" aria-live="polite"></p>
+      </form>
+      <div class="thanks" id="leadThanks" hidden>
+        <b>Заявка отправлена</b>
+        <p>Спасибо! Свяжусь с вами в течение дня.</p>
       </div>
     </section>
 
@@ -387,6 +438,36 @@
     document.getElementById('cMore').innerHTML = `Минус ${pctTxt} — это <b>${rub(rev * pct / 100)} в месяц</b> и <b>${rub(rev * pct / 100 * 12)} в год</b>.`;
   }
   cRev.addEventListener('input', calc); cPct.addEventListener('input', calc); calc();
+
+  // 7. Форма заявки → Cloudflare-воркер → Telegram
+  const LEADS_URL = 'https://protokol-relay.neiroshef.workers.dev';
+  const leadForm = document.getElementById('leadForm');
+  const leadBtn = document.getElementById('leadBtn');
+  const leadMsg = document.getElementById('leadMsg');
+  const FALLBACK = 'Напишите мне в <a href="https://t.me/Panda_koal" target="_blank" rel="noopener">Telegram</a> — отвечу так же быстро.';
+  function leadError(html) { leadMsg.className = 'form-msg err'; leadMsg.innerHTML = html; }
+  leadForm.addEventListener('change', () => { if (!leadBtn.disabled) { leadMsg.className = 'form-msg'; leadMsg.textContent = ''; } });
+  leadForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = leadForm.elements;
+    if (!f.contact.value.trim()) { leadError('Оставьте Telegram или телефон, чтобы я мог ответить.'); f.contact.focus(); return; }
+    if (!f.consent.checked) { leadError('Отметьте согласие на обработку данных.'); f.consent.focus(); return; }
+    leadBtn.disabled = true; leadBtn.textContent = 'Отправляю…'; leadMsg.className = 'form-msg'; leadMsg.textContent = '';
+    const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 15000);
+    try {
+      const r = await fetch(LEADS_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctrl.signal,
+        body: JSON.stringify({ name: f.name.value, contact: f.contact.value, restaurant: f.restaurant.value,
+                               message: f.message.value, consent: f.consent.checked, website: f.website.value }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok || !data.ok) throw new Error(data.error || r.status);
+      leadForm.hidden = true; document.getElementById('leadThanks').hidden = false;
+    } catch (err) {
+      leadError('Не получилось отправить заявку. ' + FALLBACK);
+      leadBtn.disabled = false; leadBtn.textContent = 'Отправить заявку';
+    } finally { clearTimeout(timer); }
+  });
 
 </script>
 </body>

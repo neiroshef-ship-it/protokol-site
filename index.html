@@ -48,41 +48,33 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  .page {
-    min-height: 100vh;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 40px 20px 28px;
-  }
-  .card { width: 100%; max-width: 420px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  /* ---------- каркас страницы ---------- */
+  .page { width: 100%; max-width: 1240px; margin: 0 auto; padding: 18px 16px 28px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
+  /* шапка: фото, название, бейдж пилота */
+  .top { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; }
   .avatar {
-    width: 104px; height: 104px;
+    width: 56px; height: 56px; flex: none;
     border-radius: 50%;
     object-fit: cover;              /* фото не сплющится в круге */
     border: 2px solid var(--accent);
-    box-shadow: 0 0 0 6px rgba(242, 163, 58, .1), 0 0 36px rgba(242, 163, 58, .28);
+    box-shadow: 0 0 0 4px rgba(242, 163, 58, .1), 0 0 24px rgba(242, 163, 58, .25);
     background: #2a2420;
   }
   .logo {
-    margin: 20px 0 6px;
+    margin: 0;
     font-family: Unbounded, system-ui, sans-serif;
     font-weight: 700;
-    font-size: 34px;
+    font-size: 26px;
     letter-spacing: .5px;
     line-height: 1.1;
   }
   .logo span { color: var(--accent); }
-  .by { margin: 0 0 14px; font-size: 15px; color: var(--muted); }
-  .about { margin: 0 0 18px; font-size: 16px; line-height: 1.5; color: var(--ink); }
-  .about span { display: block; color: var(--muted); }
-
+  .by { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
   .badge {
     display: inline-block;
-    margin: 0 0 22px;
+    margin: 0 0 0 auto;
     padding: 8px 14px;
     font-size: 14px; font-weight: 600;
     color: var(--accent);
@@ -91,7 +83,43 @@
     border-radius: 999px;
   }
 
-  .links { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+  /* главный экран: слева 3D и плитки связи, справа калькулятор */
+  .hero { display: grid; gap: 18px; margin-top: 16px; }
+  .about { margin: 0 0 4px; font-size: 16px; line-height: 1.5; color: var(--ink); }
+  .about span { color: var(--muted); }
+  .scene {
+    display: block; width: 100%; margin: 0 auto;
+    border: 0; background: transparent;
+    height: calc(min(100vw - 32px, 820px) * .64 + 190px);   /* запасная высота; точную ставит скрипт внизу */
+  }
+
+  /* плитки «связаться» */
+  .tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+  .tile {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+    min-height: 96px; padding: 12px 8px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink);
+    font-size: 15px; font-weight: 700; line-height: 1.2; text-align: center;
+    text-decoration: none;
+    transition: transform .15s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tile svg { width: 28px; height: 28px; flex: none; color: var(--accent); }
+  .tile:hover { transform: translateY(-2px); border-color: rgba(242, 163, 58, .6); background: rgba(255, 255, 255, .08); }
+  .tile:active { transform: scale(.98); }
+  .tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .tile--main { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); box-shadow: 0 8px 24px rgba(242, 163, 58, .25); }
+  .tile--main svg { color: var(--accent-ink); }
+  .tile--main:hover { background: #f5b153; border-color: #f5b153; }
+
+  /* правая колонка */
+  .side { display: flex; flex-direction: column; gap: 12px; }
+  .box { padding: 18px; border-radius: var(--radius); background: var(--card); border: 1px solid var(--line); }
+  .box h2 { margin: 0 0 14px; font-family: Unbounded, system-ui, sans-serif; font-size: 18px; font-weight: 700; }
+
   .btn {
     display: flex; align-items: center; justify-content: center; gap: 10px;
     width: 100%; min-height: 52px; padding: 12px 18px;
@@ -112,19 +140,14 @@
   .btn--main svg { color: var(--accent-ink); }
   .btn--main:hover { background: #f5b153; border-color: #f5b153; box-shadow: 0 10px 28px rgba(242, 163, 58, .35); }
 
-  .how { width: 100%; margin-top: 34px; }
-  .how h2 { margin: 0 0 6px; font-family: Unbounded, system-ui, sans-serif; font-size: 20px; font-weight: 700; }
-  .how iframe {
-    display: block; width: 100%; max-width: 420px; margin: 0 auto;
-    border: 0; background: transparent;
-    height: calc(min(100vw - 40px, 420px) * .64 + 185px);   /* сцена + подпись, без прокрутки внутри */
-  }
-
-  .trust { list-style: none; margin: 26px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; text-align: left; }
+  .trust { list-style: none; margin: 0; padding: 4px 4px 0; display: flex; flex-direction: column; gap: 10px; text-align: left; }
   .trust li { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); }
   .trust svg { width: 18px; height: 18px; flex: none; color: var(--accent); }
 
-  footer { margin-top: 34px; font-size: 12px; color: rgba(185, 173, 160, .6); }
+  /* ниже первого экрана: самопроверка и форма рядом */
+  .lower { display: grid; gap: 0 22px; }
+
+  footer { margin-top: 34px; font-size: 12px; text-align: center; color: rgba(185, 173, 160, .6); }
 
   .toast {
     position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px);
@@ -140,14 +163,14 @@
   .reveal.in { opacity: 1; transform: none; }
   @media (prefers-reduced-motion: reduce) {
     .reveal { opacity: 1; transform: none; transition: none; }
-    .btn, .toast { transition: none; }
+    .btn, .tile, .toast { transition: none; }
   }
 
 
   /* ---------- блок «Проверьте свой ресторан» ---------- */
   .tools { width: 100%; margin-top: 30px; text-align: left; }
   .tools h2 { margin: 0 0 14px; text-align: center; font-family: Unbounded, system-ui, sans-serif; font-size: 20px; font-weight: 700; }
-  .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 5px; border-radius: 14px; background: rgba(255,255,255,.05); border: 1px solid var(--line); }
+  .tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; padding: 5px; border-radius: 14px; background: rgba(255,255,255,.05); border: 1px solid var(--line); }
   .tab { min-height: 44px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); font: 600 14px/1.2 Manrope, system-ui, sans-serif; cursor: pointer; padding: 6px 4px; }
   .tab[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
   .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -188,6 +211,8 @@
   .tg-msg { background: #2b241e; border-radius: 4px 14px 14px 14px; padding: 12px 14px; font-size: 14px; line-height: 1.55; }
   .tg-msg .z { font-weight: 700; margin-top: 8px; display: block; }
   .tg-msg .bad { color: #ffb3aa; } .tg-msg .idea { color: var(--accent); }
+  .tg-msg .gap { display: block; height: 8px; }
+  .tg-msg .sub { display: block; padding-left: 16px; color: var(--muted); font-size: 13px; line-height: 1.5; }
 
   /* ---------- форма заявки ---------- */
   .lead { width: 100%; margin-top: 30px; text-align: left; scroll-margin-top: 20px; }
@@ -213,75 +238,115 @@
   .thanks b { display: block; font-family: Unbounded, system-ui, sans-serif; font-size: 18px; color: var(--accent); margin-bottom: 6px; }
   .thanks p { margin: 0; font-size: 15px; line-height: 1.5; }
 
-  @media (min-width: 480px) {
-    .avatar { width: 120px; height: 120px; }
-    .logo { font-size: 38px; }
+  @media (min-width: 640px) {
+    .tiles { grid-template-columns: repeat(4, 1fr); }
+    .tile { min-height: 108px; }
+    .logo { font-size: 30px; }
+  }
+  /* компьютер: две колонки */
+  @media (min-width: 1000px) {
+    .page { padding: 22px 24px 32px; }
+    .hero { grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; align-items: start; }
+    .about { font-size: 17px; }
+    /* сцена не выше экрана: тогда плитки видны без прокрутки и на ноутбуке */
+    .scene { max-width: max(560px, calc((100vh - 470px) * 1.5625)); height: calc(min(100vw - 432px, 820px) * .64 + 190px); }
+    .tile { min-height: 92px; }
+    .side { position: sticky; top: 16px; }
+    .lower { grid-template-columns: 1fr 1fr; align-items: start; }
   }
 </style>
 </head>
 <body>
 <main class="page">
-  <div class="card">
 
-    <img class="avatar reveal" src="avatar1.png" alt="Николай, автор ПРОТОКОЛА" width="120" height="120">
+  <!-- Шапка -->
+  <header class="top reveal">
+    <img class="avatar" src="avatar1.png" alt="Николай, автор ПРОТОКОЛА" width="56" height="56">
+    <div>
+      <h1 class="logo">ПРОТО<span>КОЛ</span></h1>
+      <p class="by">Николай · шеф-повар, 5 лет на кухне</p>
+    </div>
+  </header>
 
-    <h1 class="logo reveal">ПРОТО<span>КОЛ</span></h1>
-    <p class="by reveal">Николай · шеф-повар, 5 лет на кухне</p>
+  <div class="hero">
 
-    <p class="about reveal">
-      ИИ-контроль потерь ресторана на&nbsp;данных&nbsp;iiko.
-      <span>Каждое утро — где вчера ушли деньги: фудкост, списания, скидки, недостачи.</span>
-    </p>
+    <!-- ЛЕВАЯ КОЛОНКА: 3D «Как работает ПРОТОКОЛ» + плитки связи -->
+    <section class="stage reveal" aria-labelledby="howTitle">
+      <p class="about">
+        ИИ-контроль потерь ресторана на&nbsp;данных&nbsp;iiko.
+        <span>Каждое утро — где вчера ушли деньги: фудкост, списания, скидки, недостачи.</span>
+      </p>
+      <h2 id="howTitle" class="sr-only">Как работает ПРОТОКОЛ</h2>
+      <iframe class="scene" id="scene3d" src="protokol-3d.html" title="Как работает ПРОТОКОЛ"></iframe>
 
-    <div class="badge reveal">Бесплатный пилот на&nbsp;30&nbsp;дней</div>
-
-    <nav class="links" aria-label="Связаться">
+    <nav class="tiles" aria-label="Связаться">
       <!-- Telegram -->
-      <a class="btn btn--main reveal" href="https://t.me/Panda_koal" target="_blank" rel="noopener">
+      <a class="tile tile--main" href="https://t.me/Panda_koal" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3c.3-1.2-.9-2.2-2-1.7L2.8 9.3c-1.2.5-1.1 2.2.1 2.6l4.3 1.4 1.7 5.3c.3.9 1.4 1.2 2.1.5l2.4-2.3 4.4 3.2c.9.7 2.2.2 2.5-.9L21.9 4.3zM9.6 13.2l7.9-5.8-6.2 6.8-.3 3-1.4-4z"/></svg>
-        Написать в Telegram
+        Telegram
       </a>
 
       <!-- Заявка: прокручивает к форме внизу -->
-      <a class="btn reveal" href="#lead">
+      <a class="tile" href="#lead">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4h6M9 4a2 2 0 0 0-2 2v0H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-1v0a2 2 0 0 0-2-2M9 13l2 2 4-4"/></svg>
         Оставить заявку
       </a>
 
       <!-- WhatsApp: номер только цифрами, без + и пробелов; текст после ?text= — готовое первое сообщение -->
-      <a class="btn reveal" href="https://wa.me/79958993803?text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5!%20%D0%A5%D0%BE%D1%87%D1%83%20%D1%83%D0%B7%D0%BD%D0%B0%D1%82%D1%8C%20%D0%BF%D1%80%D0%BE%20%D0%BF%D0%B8%D0%BB%D0%BE%D1%82%20%D0%9F%D0%A0%D0%9E%D0%A2%D0%9E%D0%9A%D0%9E%D0%9B%D0%90" target="_blank" rel="noopener">
+      <a class="tile" href="https://wa.me/79958993803?text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5!%20%D0%A5%D0%BE%D1%87%D1%83%20%D1%83%D0%B7%D0%BD%D0%B0%D1%82%D1%8C%20%D0%BF%D1%80%D0%BE%20%D0%BF%D0%B8%D0%BB%D0%BE%D1%82%20%D0%9F%D0%A0%D0%9E%D0%A2%D0%9E%D0%9A%D0%9E%D0%9B%D0%90" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>
-        Написать в WhatsApp
+        WhatsApp
       </a>
 
       <!-- Почта: тот же адрес — в переменной EMAIL внизу, в <script> -->
-      <a class="btn reveal" id="mailBtn" href="mailto:neiroshef@gmail.com?subject=%D0%9F%D0%B8%D0%BB%D0%BE%D1%82%20%D0%9F%D0%A0%D0%9E%D0%A2%D0%9E%D0%9A%D0%9E%D0%9B%D0%90">
+      <a class="tile" id="mailBtn" href="mailto:neiroshef@gmail.com?subject=%D0%9F%D0%B8%D0%BB%D0%BE%D1%82%20%D0%9F%D0%A0%D0%9E%D0%A2%D0%9E%D0%9A%D0%9E%D0%9B%D0%90">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
-        Написать на почту
+        Почта
       </a>
+    </nav>
+    </section>
+
+    <!-- ПРАВАЯ КОЛОНКА: калькулятор, презентация, галочки -->
+    <aside class="side">
+      <!-- Калькулятор: обычная арифметика на цифрах владельца -->
+      <section class="box reveal" aria-labelledby="calcTitle">
+        <h2 id="calcTitle">Сколько стоит 1% фудкоста</h2>
+        <label class="field"><span>Выручка в месяц, ₽</span><input type="text" inputmode="numeric" id="cRev" value="3 000 000" autocomplete="off"></label>
+        <label class="field"><span>На сколько процентов снизить фудкост</span>
+          <div class="range-row"><input type="range" id="cPct" min="0.5" max="5" step="0.5" value="2"><b id="cPctOut">2%</b></div></label>
+        <div class="result" aria-live="polite">
+          <p>Каждый 1% фудкоста — это</p>
+          <p class="big" id="cOne">30 000 ₽ в месяц</p>
+          <p id="cMore">Минус 2% — это <b>60 000 ₽ в месяц</b> и <b>720 000 ₽ в год</b>.</p>
+        </div>
+        <p class="muted" style="margin-top:10px">Это расчёт на ваших цифрах, а не обещание. Где именно уходят проценты — покажет ПРОТОКОЛ.</p>
+        <a class="cta-small" href="https://t.me/Panda_koal" target="_blank" rel="noopener">Найти мои проценты</a>
+      </section>
 
       <!-- Презентация: файл protokol.pdf лежит в той же папке, что index.html -->
       <a class="btn reveal" href="protokol.pdf" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>
         Презентация ПРОТОКОЛА (PDF)
       </a>
-    </nav>
 
-    <section class="how reveal" aria-labelledby="howTitle">
-      <h2 id="howTitle">Как работает ПРОТОКОЛ</h2>
-      <iframe src="protokol-3d.html" title="Как работает ПРОТОКОЛ" loading="lazy"></iframe>
-    </section>
+      <ul class="trust reveal">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>Только чтение iiko — ничего не меняет</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>Данные остаются у ресторана</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>ИИ не видит имён сотрудников</li>
+      </ul>
+    </aside>
+  </div>
 
+  <div class="lower">
     <section class="tools reveal" aria-labelledby="toolsTitle">
       <h2 id="toolsTitle">Проверьте свой ресторан</h2>
       <div class="tabs" role="tablist">
-        <button class="tab" role="tab" id="t-check" aria-controls="p-check" aria-selected="true">Самопроверка</button>
-        <button class="tab" role="tab" id="t-calc" aria-controls="p-calc" aria-selected="false">Калькулятор</button>
-        <button class="tab" role="tab" id="t-demo" aria-controls="p-demo" aria-selected="false">Пример сводки</button>
+        <button class="tab" role="tab" id="t-demo" aria-controls="p-demo" aria-selected="true">Пример сводки</button>
+        <button class="tab" role="tab" id="t-check" aria-controls="p-check" aria-selected="false">Самопроверка</button>
       </div>
 
       <!-- 1. Самопроверка: 7 вопросов, в конце — зоны риска -->
-      <div class="panel" role="tabpanel" id="p-check" aria-labelledby="t-check">
+      <div class="panel" role="tabpanel" id="p-check" aria-labelledby="t-check" hidden>
         <div id="quiz">
           <div class="q-progress" id="qProgress" aria-hidden="true"></div>
           <p class="q-zone" id="qZone"></p>
@@ -297,31 +362,27 @@
         </div>
       </div>
 
-      <!-- 2. Калькулятор: обычная арифметика на цифрах владельца -->
-      <div class="panel" role="tabpanel" id="p-calc" aria-labelledby="t-calc" hidden>
-        <label class="field"><span>Выручка в месяц, ₽</span><input type="text" inputmode="numeric" id="cRev" value="3 000 000" autocomplete="off"></label>
-        <label class="field"><span>На сколько процентов снизить фудкост</span>
-          <div class="range-row"><input type="range" id="cPct" min="0.5" max="5" step="0.5" value="2"><b id="cPctOut">2%</b></div></label>
-        <div class="result" aria-live="polite">
-          <p>Каждый 1% фудкоста — это</p>
-          <p class="big" id="cOne">30 000 ₽ в месяц</p>
-          <p id="cMore">Минус 2% — это <b>60 000 ₽ в месяц</b> и <b>720 000 ₽ в год</b>.</p>
-        </div>
-        <p class="muted" style="margin-top:10px">Это расчёт на ваших цифрах, а не обещание. Где именно уходят проценты — покажет ПРОТОКОЛ.</p>
-        <a class="cta-small" href="https://t.me/Panda_koal" target="_blank" rel="noopener">Найти мои проценты</a>
-      </div>
-
-      <!-- 3. Пример утренней сводки в Telegram -->
-      <div class="panel" role="tabpanel" id="p-demo" aria-labelledby="t-demo" hidden>
+      <!-- 2. Пример утренней сводки в Telegram -->
+      <div class="panel" role="tabpanel" id="p-demo" aria-labelledby="t-demo">
         <div class="tg">
           <div class="tg-head"><div class="tg-ava" aria-hidden="true">П</div><div><b>ПРОТОКОЛ</b><small>бот · сегодня в 10:00</small></div></div>
+          <!-- Настоящая сводка ПРОТОКОЛА (server/digest.py) на учебных данных -->
           <div class="tg-msg">
-            <b>Сводка за вчера</b><br>
-            Выручка 84 077 ₽ (−18,7% к обычному дню)<br>
-            Фудкост 27,8%, списания 12 750 ₽
-            <span class="z">🔪 Кухня</span><span class="bad">• Списания ×6,7 — 10 850 ₽ разово</span>
-            <span class="z">🧮 Учёт</span><span class="bad">• Касса −3 400 ₽ в смене</span>
-            <span class="z idea">💡 Идея для выручки</span>«Коктейль» — фудкост 24%, а заказывают редко. Поднять в меню.
+            <b>☀️ Сводка «Ресторан на Покровке» за 26 октября, пн</b>
+            <span class="gap"></span>
+            💰 Выручка: 65 341 ₽ <span class="bad">(−30,9% к прошлому понедельнику)</span><br>
+            🧾 Чеков: 43, средний чек 1 520 ₽<br>
+            🥩 Фудкост 26,9%, списания 12 750 ₽ <span class="bad">(19,5% выручки)</span>
+            <span class="gap"></span>
+            <b>Новое за день: 2</b>
+            <span class="z">🔪 Кухня</span>
+            • 🔴 Списания 26 октября в 7,7 раза выше обычного
+            <span class="sub">≈ 11 100 ₽ разово<br>Проверить: журнал температур холодильников за последние сутки.</span>
+            <span class="z">🍽 Зал</span>
+            • 🔴 Выручка 26 октября ниже обычной для этого дня недели на 30,5%
+            <span class="sub">≈ 28 701 ₽ разово<br>Проверить: был ли стоп-лист по ходовым позициям?</span>
+            <span class="gap"></span>
+            ⏳ Ещё открыто: 7 проблем, повторяющиеся <span class="idea"><b>≈ 85 187 ₽ в месяц</b></span> — в панели и в недельной сводке.
           </div>
         </div>
         <p class="muted" style="margin-top:10px">Пример на учебных данных. Так выглядит сообщение, которое управляющий получает каждое утро.</p>
@@ -349,15 +410,9 @@
         <p>Спасибо! Свяжусь с вами в течение дня.</p>
       </div>
     </section>
-
-    <ul class="trust reveal">
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>Только чтение iiko — ничего не меняет</li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>Данные остаются у ресторана</li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>ИИ не видит имён сотрудников</li>
-    </ul>
-
-    <footer>© ПРОТОКОЛ, 2026</footer>
   </div>
+
+  <footer>© ПРОТОКОЛ, 2026</footer>
 </main>
 
 <div class="toast" id="toast" role="status" aria-live="polite">Почта скопирована</div>
@@ -438,6 +493,22 @@
     document.getElementById('cMore').innerHTML = `Минус ${pctTxt} — это <b>${rub(rev * pct / 100)} в месяц</b> и <b>${rub(rev * pct / 100 * 12)} в год</b>.`;
   }
   cRev.addEventListener('input', calc); cPct.addEventListener('input', calc); calc();
+
+  // 3D-сцена: высота окна iframe = высоте его содержимого (без пустоты и прокрутки внутри)
+  const scene = document.getElementById('scene3d');
+  function fitScene() {
+    try {
+      const d = scene.contentDocument;
+      if (d && d.body && d.body.scrollHeight) scene.style.height = d.body.scrollHeight + 'px';
+    } catch (e) { /* открыто с диска: остаётся запасная высота из CSS */ }
+  }
+  function watchScene() {
+    fitScene();
+    try { new scene.contentWindow.ResizeObserver(fitScene).observe(scene.contentDocument.body); } catch (e) {}
+  }
+  scene.addEventListener('load', watchScene);
+  try { if (scene.contentDocument && scene.contentDocument.readyState === 'complete') watchScene(); } catch (e) {}
+  window.addEventListener('resize', fitScene);
 
   // 7. Форма заявки → Cloudflare-воркер → Telegram
   const LEADS_URL = 'https://protokol-relay.neiroshef.workers.dev';

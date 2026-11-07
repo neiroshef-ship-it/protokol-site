@@ -38,6 +38,13 @@
   .note { text-align: center; font-size: 11px; line-height: 1.5; color: rgba(185, 173, 160, .7); }
   .note .hint { font-weight: 600; font-size: 12px; color: rgba(242, 163, 58, .85); }
   @media (min-width: 520px) { .cap h2 { font-size: 16px; } .cap p { font-size: 14px; } }
+  /* большая сцена на главном экране сайта: подписи крупнее, место под 2 строки текста — без скачков высоты */
+  @media (min-width: 700px) {
+    .cap { min-height: 82px; }
+    .cap h2 { font-size: 20px; margin-bottom: 6px; }
+    .cap p { font-size: 16px; }
+    .note { font-size: 12.5px; } .note .hint { font-size: 13.5px; }
+  }
 </style>
 </head>
 <body>
@@ -130,33 +137,58 @@ function drawStatic() {
 
 // ---------- people
 function person(x, y, color, t) {
-  const [sx, sy] = P(x, y, 0); const s = TW / 64; const bob = reduce ? 0 : Math.sin(t * 6 + x * 3) * 1.2 * s;
+  const [sx, sy] = P(x, y, 0); const s = TW / 64; const bob = reduce ? 0 : Math.sin(t * 9 + x * 3) * 1.4 * s;
   ctx.beginPath(); ctx.ellipse(sx, sy, 7 * s, 3.5 * s, 0, 0, 6.283); ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fill();
   rr(ctx, sx - 5 * s, sy - 20 * s + bob, 10 * s, 16 * s, 4 * s); ctx.fillStyle = color; ctx.fill();
   ctx.beginPath(); ctx.arc(sx, sy - 25 * s + bob, 5 * s, 0, 6.283); ctx.fillStyle = '#f1d3b5'; ctx.fill();
 }
 function route(points, speed) { const segs = []; let L = 0; for (let i = 0; i < points.length; i++) { const a = points[i], b = points[(i + 1) % points.length]; const l = Math.hypot(b[0] - a[0], b[1] - a[1]); segs.push([a, b, l]); L += l; } return { segs, L, speed }; }
 function along(p, t) { let d = (t * p.speed) % p.L; for (const [a, b, l] of p.segs) { if (d <= l) { const k = d / l; return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]; } d -= l; } return p.segs[0][0]; }
+// z: в какой зоне человек — от этого зависят числа, которые «вылетают» над ним
 const WALKERS = [
-  { p: route([[4.6, 1.2], [2.6, 2.6], [0.8, 2.4], [2.6, .6]], .55), c: '#2f2f3a' },
-  { p: route([[8.0, 1.25], [8.6, 1.4], [8.3, 3.2], [7.3, 3.4]], .45), c: '#e8e8e8' },
-  { p: route([[8.6, 5.8], [8.7, 7.9], [7.8, 7.6]], .3), c: '#5b6b7d' },
+  // зал: три официанта и гость, который идёт к кассе
+  { p: route([[4.6, 1.2], [2.6, 2.6], [0.8, 2.4], [2.6, .6]], .8), c: '#2f2f3a', z: 'hall' },
+  { p: route([[4.7, 2.2], [4.2, 4.4], [2.4, 4.5], [2.5, 2.4]], .7), c: '#2f2f3a', z: 'hall' },
+  { p: route([[0.6, 4.5], [0.5, .6], [4.6, .5], [4.6, 2.6], [2.5, 2.5], [2.5, 4.5]], .65), c: '#2f2f3a', z: 'hall' },
+  { p: route([[2.5, 4.6], [4.7, 4.5], [4.7, 1.4], [4.7, 4.5]], .5), c: '#7a4fa0', z: 'hall' },
+  // кухня: три повара
+  { p: route([[8.0, 1.25], [8.6, 1.4], [8.3, 3.2], [7.3, 3.4]], .65), c: '#e8e8e8', z: 'kitchen' },
+  { p: route([[6.6, 1.3], [6.5, 3.4], [7.5, 2.9]], .55), c: '#e8e8e8', z: 'kitchen' },
+  { p: route([[9.6, 3.9], [8.0, 4.4], [6.4, 4.4], [8.5, 3.6]], .6), c: '#e8e8e8', z: 'kitchen' },
+  // учёт и склад: кладовщик, бармен-инвентаризация, бухгалтер
+  { p: route([[8.6, 5.8], [8.7, 7.9], [7.8, 7.6]], .5), c: '#5b6b7d', z: 'store' },
+  { p: route([[6.5, 7.2], [8.9, 7.5], [8.9, 5.6], [7.4, 5.5]], .45), c: '#3f6b5b', z: 'store' },
+  { p: route([[2.2, 8.4], [5.6, 8.5], [5.6, 6.0], [2.6, 5.6]], .4), c: '#c58a35', z: 'office' },
 ];
-const SITTERS = [[1.2, 1.5, '#a0525a'], [3.9, 1.6, '#4f7aa3'], [1.0, 3.6, '#6b8f5a'], [3.2, 3.9, '#b07a3a'], [6.9, 6.85, '#5b6b7d'], [5.0, 8.3, '#c58a35']];
+// гости за столами (оба стула у каждого стола) + бухгалтер и менеджер
+const SITTERS = [[0.98, 1.55, '#a0525a', 'hall'], [2.05, 1.55, '#4f7aa3', 'hall'], [2.95, 1.6, '#6b8f5a', 'hall'], [4.05, 1.6, '#b07a3a', 'hall'],
+  [0.98, 3.55, '#6b8f5a', 'hall'], [2.05, 3.6, '#a0525a', 'hall'], [2.95, 3.55, '#4f7aa3', 'hall'], [4.05, 3.6, '#b07a3a', 'hall'],
+  [6.9, 6.85, '#5b6b7d', 'store'], [5.0, 8.3, '#c58a35', 'office']];
+
+// ---------- живые числа над людьми и счётчик дня
+const FLOAT_TEXT = {
+  hall: [['+1 240 ₽', 'g'], ['+2 340 ₽', 'g'], ['+890 ₽', 'g'], ['+3 100 ₽', 'g'], ['+1 760 ₽', 'g'], ['скидка −15%', 'r'], ['+640 ₽', 'g'], ['удаление −480 ₽', 'r']],
+  kitchen: [['−0,4 кг', 'r'], ['−1,2 кг лосося', 'r'], ['+6 порций', 'w'], ['карбонара ×3', 'w'], ['−0,8 кг', 'r'], ['сливки +31%', 'r']],
+  store: [['+6 л сливок', 'w'], ['−3 бут. вина', 'r'], ['приход 18 400 ₽', 'w'], ['касса −3 400 ₽', 'r']],
+  office: [['отчёт за смену', 'w'], ['накладная №214', 'w']],
+};
+const FLOAT_COLOR = { g: '#8fe3a1', r: '#ff8a80', w: '#efe7de' };
+const floats = [];
+let lastFloat = 0, dayRevenue = 0, dayChecks = 0;
 
 // ---------- dynamic layer
-const STEP_MS = 6000;
+const STEP_MS = 5200;
 let step = 0, stepStart = 0, lastSpawn = 0, running = false, visible = true, raf = 0;
 const packets = [], chips = [];
 const pick = a => a[Math.floor(Math.random() * a.length)];
 function spawnPacket(a, b, color, toPhone) { packets.push({ a, b, color, t0: performance.now(), dur: 1400 + Math.random() * 400, toPhone }); }
 function spawnChip(zone, text, kind, stay) {
-  if (chips.some(c => c.text === text || c.zone === zone) || (!stay && chips.length >= 2)) return; // one chip per zone, two at most: no overlaps
+  if (chips.some(c => c.text === text || c.zone === zone) || (!stay && chips.length >= 3)) return; // one chip per zone: no overlaps
   const [x, y] = { hall: [3.4, 2.4], kitchen: [8.2, 3.2], store: [8.0, 7.2] }[zone]; // fixed spots: chips never cover each other or the labels
   chips.push({ zone, x, y, text, kind, t0: performance.now() - (stay ? 600 : 0), dur: stay ? 1e9 : (kind === 'problem' ? 3400 : 2300) });
 }
 function spawn(now) {
-  const gap = [950, 560, 450, 1000, 700, 99999][step];
+  const gap = [520, 300, 240, 620, 380, 99999][step];
   if (now - lastSpawn < gap) return; lastSpawn = now;
   if (step === 0) { const z = pick(['hall', 'kitchen', 'store']); spawnChip(z, pick(EVENTS[z]), 'event'); }
   if (step === 1) { const [src, col] = pick([[PT.pos, ZONES.hall.color], [PT.bin, ZONES.kitchen.color], [PT.desk, ZONES.store.color]]); spawnPacket(src, PT.iiko, col); }
@@ -186,6 +218,38 @@ function drawChip(c, now) {
   ctx.strokeStyle = bad ? '#ff6b5e' : 'rgba(255,255,255,.18)'; ctx.lineWidth = 1.2; ctx.stroke();
   ctx.fillStyle = bad ? '#ffd2cc' : '#efe7de'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText((bad ? '● ' : '') + c.text, x + w / 2, sy + 1); ctx.restore();
   return false;
+}
+function spawnFloat([x, y, z]) {
+  const [text, k] = pick(FLOAT_TEXT[z]);
+  if (floats.length >= 9) floats.shift();
+  floats.push({ x: x + (Math.random() - .5) * .3, y, text, k, t0: performance.now() });
+  if (z === 'hall' && k === 'g') { dayRevenue += Number(text.replace(/\D/g, '')); dayChecks++; }
+}
+function drawFloat(f, now) {
+  const k = (now - f.t0) / 1500; if (k >= 1) return true;
+  const a = k < .15 ? k / .15 : 1 - (k - .15) / .85;
+  const [sx, sy] = P(f.x, f.y, 1.15 + k * 1.3);
+  ctx.save(); ctx.globalAlpha = a; ctx.font = `700 ${Math.max(9, TW * .15)}px Manrope, system-ui, sans-serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.shadowColor = 'rgba(0,0,0,.9)'; ctx.shadowBlur = 4;
+  ctx.fillStyle = FLOAT_COLOR[f.k]; ctx.fillText(f.text, sx, sy); ctx.restore();
+  return false;
+}
+const fmt = v => Math.round(v).toLocaleString('ru-RU').replace(/\s/g, ' ');
+function drawHud(now) {
+  let title, value, sub, color;
+  if (step <= 2 && !focus) { title = 'Выручка сегодня'; value = fmt(146820 + dayRevenue) + ' ₽'; sub = `Чеков: ${38 + dayChecks}`; color = '#8fe3a1'; }
+  else { const p = reduce ? 1 : Math.min(1, (now - stepStart) / 2200); title = 'Найдено потерь'; value = '≈ ' + fmt(85187 * (step >= 3 ? p : 1)) + ' ₽'; sub = 'в месяц, по 20 проверкам'; color = '#ff8a80'; }
+  const f1 = Math.max(10, TW * .14), f2 = Math.max(13, TW * .26), pad = Math.max(8, TW * .14);
+  if (W < 500) sub = ''; // телефон: без третьей строки, чтобы табличка не наезжала на подпись iiko
+  ctx.save();
+  ctx.font = `700 ${f2}px Unbounded, system-ui, sans-serif`; const w2 = ctx.measureText(value).width;
+  ctx.font = `600 ${f1}px Manrope, system-ui, sans-serif`; const w1 = Math.max(ctx.measureText(title).width, ctx.measureText(sub).width);
+  const w = Math.max(w1, w2) + pad * 2, h = f1 * (sub ? 2.5 : 1.3) + f2 * 1.2 + pad * 1.4;
+  rr(ctx, 8, 8, w, h, 10); ctx.fillStyle = 'rgba(20,16,14,.88)'; ctx.fill(); ctx.strokeStyle = rgba(color, .55); ctx.lineWidth = 1; ctx.stroke();
+  ctx.textBaseline = 'top'; ctx.fillStyle = '#b9ada0'; ctx.fillText(title, 8 + pad, 8 + pad * .7);
+  ctx.font = `700 ${f2}px Unbounded, system-ui, sans-serif`; ctx.fillStyle = color; ctx.fillText(value, 8 + pad, 8 + pad * .7 + f1 * 1.3);
+  ctx.font = `600 ${f1}px Manrope, system-ui, sans-serif`; ctx.fillStyle = 'rgba(185,173,160,.8)'; ctx.fillText(sub, 8 + pad, 8 + pad * .7 + f1 * 1.3 + f2 * 1.25);
+  ctx.restore();
 }
 function zoneOutline(key, alpha, lw) { const z = ZONES[key]; poly(ctx, [P(z.x0, z.y0), P(z.x1, z.y0), P(z.x1, z.y1), P(z.x0, z.y1)], rgba(z.color, alpha * .16), rgba(z.color, alpha), lw); }
 function label(text, x, y, z, color, big) {
@@ -217,8 +281,11 @@ function frame(now) {
   if (step === 3 && !reduce) { const x = ((t * .35) % 1) * 10; poly(ctx, [P(x, 0, .02), P(x + .25, 0, .02), P(x + .25, 9, .02), P(x, 9, .02)], 'rgba(242,163,58,.2)'); }
   const [cx, cy] = P(3.6, 7.1, .9), pu = reduce ? .5 : (Math.sin(t * 3) + 1) / 2;
   ctx.save(); ctx.globalCompositeOperation = 'lighter'; const grd = ctx.createRadialGradient(cx, cy, 2, cx, cy, TW * (1.1 + pu * .3)); grd.addColorStop(0, 'rgba(242,163,58,.55)'); grd.addColorStop(1, 'rgba(242,163,58,0)'); ctx.fillStyle = grd; ctx.fillRect(cx - TW * 2, cy - TW * 2, TW * 4, TW * 4); ctx.restore();
-  for (const [x, y, c] of SITTERS) person(x, y, c, t);
-  for (const w of WALKERS) { const [x, y] = reduce ? w.p.segs[0][0] : along(w.p, t); person(x, y, w.c, t); }
+  const actors = [];
+  for (const [x, y, c, z] of SITTERS) { person(x, y, c, t); actors.push([x, y, z]); }
+  for (const w of WALKERS) { const [x, y] = reduce ? w.p.segs[0][0] : along(w.p, t); person(x, y, w.c, t); actors.push([x, y, w.z]); }
+  if (!reduce && !focus && step <= 3 && now - lastFloat > 230) { lastFloat = now; spawnFloat(pick(actors)); }
+  for (let i = floats.length - 1; i >= 0; i--) if (drawFloat(floats[i], now)) floats.splice(i, 1);
   if (step >= 4) drawPhone(t, step === 4);
   for (let i = packets.length - 1; i >= 0; i--) if (drawPacket(packets[i], now)) packets.splice(i, 1);
   label('ЗАЛ', 2.6, -.2, 1.15, ZONES.hall.color);
@@ -228,6 +295,7 @@ function frame(now) {
   label('ПРОТОКОЛ', 3.9, 7.4, 1.6, '#f2a33a', true);
   if (step === 2) label('только чтение', 1.6, 5.4, 3.0, '#3fc1b0');
   for (let i = chips.length - 1; i >= 0; i--) if (drawChip(chips[i], now)) chips.splice(i, 1);
+  drawHud(now);
   if (running) raf = requestAnimationFrame(frame);
 }
 
@@ -237,6 +305,7 @@ STEPS.forEach((s, i) => { const b = document.createElement('button'); b.type = '
 function setStep(i) {
   if (typeof focus !== 'undefined' && focus && performance.now() <= focusUntil) { focus = null; }
   step = i; stepStart = performance.now(); lastSpawn = 0; packets.length = 0; chips.length = 0;
+  if (i === 0) { dayRevenue = 0; dayChecks = 0; } // новый круг — новый день
   document.getElementById('capTitle').innerHTML = `<b>${i + 1}.</b> ${STEPS[i].t}`;
   document.getElementById('capText').textContent = STEPS[i].d;
   [...dots.children].forEach((b, k) => b.setAttribute('aria-current', k === i ? 'step' : 'false'));

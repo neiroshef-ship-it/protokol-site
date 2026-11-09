@@ -238,7 +238,7 @@ const fmt = v => Math.round(v).toLocaleString('ru-RU').replace(/\s/g, ' ');
 function drawHud(now) {
   let title, value, sub, color;
   if (step <= 2 && !focus) { title = 'Выручка сегодня'; value = fmt(146820 + dayRevenue) + ' ₽'; sub = `Чеков: ${38 + dayChecks}`; color = '#8fe3a1'; }
-  else { const p = reduce ? 1 : Math.min(1, (now - stepStart) / 2200); title = 'Найдено потерь'; value = '≈ ' + fmt(85187 * (step >= 3 ? p : 1)) + ' ₽'; sub = 'в месяц, по 20 проверкам'; color = '#ff8a80'; }
+  else { const p = reduce ? 1 : Math.min(1, (now - stepStart) / 2200); title = 'Найдено потерь'; value = '≈ ' + fmt(79792 * (step >= 3 ? p : 1)) + ' ₽'; sub = 'в месяц, по 20 проверкам'; color = '#ff8a80'; }
   const f1 = Math.max(10, TW * .14), f2 = Math.max(13, TW * .26), pad = Math.max(8, TW * .14);
   if (W < 500) sub = ''; // телефон: без третьей строки, чтобы табличка не наезжала на подпись iiko
   ctx.save();

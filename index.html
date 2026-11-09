@@ -276,6 +276,16 @@
 
   /* ---------- инфографика «Одна проблема за месяц» ---------- */
   .leak { padding: 18px 14px 16px; border-radius: var(--radius); background: var(--card); border: 1px solid var(--line); }
+  .leak-tabs { display: flex; gap: 6px; overflow-x: auto; margin: 0 0 10px; padding: 2px; scrollbar-width: none; }
+  .leak-tabs::-webkit-scrollbar { display: none; }
+  .leak-tabs button { flex: none; position: relative; overflow: hidden; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); font: 600 13px Manrope, system-ui, sans-serif; cursor: pointer; }
+  .leak-tabs button.on { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+  .leak-tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .leak-tabs button i { position: absolute; left: 0; bottom: 0; height: 2px; width: 0; background: rgba(29,20,8,.55); }
+  .leak-what { margin: 0 4px 10px; min-height: 44px; font-size: 15px; font-weight: 700; line-height: 1.35; }
+  .leak-what small { display: block; margin-top: 2px; font-size: 13px; font-weight: 500; color: var(--muted); }
+  .leak-chart, .leak-what, .leak-nums { transition: opacity .3s ease; }
+  .leak.swap .leak-chart, .leak.swap .leak-what, .leak.swap .leak-nums { opacity: .12; }
   .leak-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0 4px 6px; font-size: 14px; font-weight: 600; }
   .leak-legend span { display: inline-flex; align-items: center; gap: 8px; }
   .leak-legend i { width: 22px; height: 4px; border-radius: 2px; display: inline-block; }
@@ -289,6 +299,9 @@
   .leak-num.good b { color: var(--accent); }
   .leak-num.diff { background: rgba(242,163,58,.08); border-color: rgba(242,163,58,.4); }
   .leak-num.diff b { color: var(--ink); }
+  .vid { border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); background: #0d0b09; aspect-ratio: 16 / 9; }
+  .vid video { display: block; width: 100%; height: 100%; object-fit: cover; }
+  @media (max-width: 640px) { .vid { aspect-ratio: 9 / 16; max-width: 420px; max-height: 86vh; margin: 0 auto; } }
   .leak-note { margin: 12px 4px 0; font-size: 12.5px; line-height: 1.5; color: rgba(185,173,160,.8); }
 
   /* ---------- сравнение «без / с ПРОТОКОЛОМ» ---------- */
@@ -436,22 +449,38 @@
   </div>
 
 
+  <!-- РОЛИК: сводка в Telegram и панель в телефоне (студия protokol-video, учебные данные) -->
+  <section class="sec reveal" aria-labelledby="vidTitle">
+    <h2 class="sec-title" id="vidTitle">Как это выглядит <em>у управляющего</em></h2>
+    <p class="sec-sub">Утром — сводка в Telegram. Днём — панель в телефоне: выручка, загрузка зала, проблемы и кухня.</p>
+    <div class="vid">
+      <!-- на телефоне — вертикальная версия, на компьютере — горизонтальная (выбирает скрипт «7б») -->
+      <video id="promoVideo" muted loop playsinline preload="none" poster="protokol-video.jpg"
+             data-wide="protokol-video.mp4" data-wide-poster="protokol-video.jpg"
+             data-tall="protokol-video-tel.mp4" data-tall-poster="protokol-video-tel.jpg"
+             aria-label="Ролик: утренняя сводка ПРОТОКОЛА в Telegram, панель в телефоне, проблемы ресторана в рублях"></video>
+    </div>
+    <p class="leak-note">Учебные данные ПРОТОКОЛА. Панель открывается из бота кнопкой «Открыть панель» — подключаем при установке.</p>
+  </section>
+
   <!-- ИНФОГРАФИКА: одна незамеченная проблема за 30 дней -->
   <section class="sec reveal" aria-labelledby="leakTitle">
     <h2 class="sec-title" id="leakTitle">Деньги уходят <em>каждый день</em></h2>
     <p class="sec-sub">Сколько стоит проблема, если найти её через месяц на инвентаризации — и если на следующее утро.</p>
     <div class="leak">
+      <div class="leak-tabs" id="leakTabs" role="group" aria-label="Какую потерю показать"></div>
+      <p class="leak-what" id="leakWhat" aria-live="polite"></p>
       <div class="leak-legend" aria-hidden="true">
         <span><i style="background:#ff7a6e"></i>Без ПРОТОКОЛА</span>
         <span><i style="background:var(--accent)"></i>С ПРОТОКОЛОМ</span>
       </div>
-      <div class="leak-chart" id="leakChart" role="img" aria-label="График: без ПРОТОКОЛА потери за 30 дней растут до 85 187 рублей, с ПРОТОКОЛОМ проблему находят утром и потери останавливаются на 5 679 рублях"></div>
+      <div class="leak-chart" id="leakChart" role="img" aria-label="График: без ПРОТОКОЛА потери копятся 30 дней, до инвентаризации или отчёта за месяц; с ПРОТОКОЛОМ проблему находят утром и потери останавливаются на второй день"></div>
       <div class="leak-nums">
-        <div class="leak-num bad"><small>Без ПРОТОКОЛА — узнали на 30-й день</small><b id="lnBad">85 187 ₽</b></div>
-        <div class="leak-num good"><small>С ПРОТОКОЛОМ — закрыли на 2-й день</small><b id="lnGood">5 679 ₽</b></div>
-        <div class="leak-num diff"><small>Остаётся в ресторане за месяц</small><b id="lnDiff">79 508 ₽</b></div>
+        <div class="leak-num bad"><small>Без ПРОТОКОЛА — узнали на 30-й день</small><b id="lnBad">79 792 ₽</b></div>
+        <div class="leak-num good"><small>С ПРОТОКОЛОМ — закрыли на 2-й день</small><b id="lnGood">5 319 ₽</b></div>
+        <div class="leak-num diff"><small>Остаётся в ресторане за месяц</small><b id="lnDiff">74 473 ₽</b></div>
       </div>
-      <p class="leak-note">Пример на учебных данных ПРОТОКОЛА: открытые проблемы стоят ≈ 85 187 ₽ в месяц, если ничего не менять. Считаем, что после утренней сводки их устранили на 2-й день. Это иллюстрация, а не обещание: у каждого ресторана свои цифры.</p>
+      <p class="leak-note">Примеры на учебных данных ПРОТОКОЛА: пять повторяющихся проблем учебного ресторана, вместе ≈ 79 792 ₽ в месяц, если ничего не менять. Считаем, что после утренней сводки проблему устранили на 2-й день. Это иллюстрация, а не обещание: у каждого ресторана свои цифры.</p>
     </div>
   </section>
 
@@ -512,23 +541,24 @@
       <div class="panel" role="tabpanel" id="p-demo" aria-labelledby="t-demo">
         <div class="tg">
           <div class="tg-head"><div class="tg-ava" aria-hidden="true">П</div><div><b>ПРОТОКОЛ</b><small>бот · сегодня в 10:00</small></div></div>
-          <!-- Настоящая сводка ПРОТОКОЛА (server/digest.py) на учебных данных -->
+          <!-- Настоящая сводка ПРОТОКОЛА 2.8 (server/digest.py) на учебных данных, 09.11.2026 -->
           <div class="tg-msg">
-            <b>☀️ Сводка «Ресторан на Покровке» за 26 октября, пн</b>
+            <b>☀️ Сводка «Ресторан на Покровке» за 28 октября, ср</b>
             <span class="gap"></span>
-            💰 Выручка: 65 341 ₽ <span class="bad">(−30,9% к прошлому понедельнику)</span><br>
-            🧾 Чеков: 43, средний чек 1 520 ₽<br>
-            🥩 Фудкост 26,9%, списания 12 750 ₽ <span class="bad">(19,5% выручки)</span>
+            💰 Выручка: 84 077 ₽ <span class="bad">(−18,7% к прошлой среде)</span><br>
+            🧾 Чеков: 53, средний чек 1 586 ₽<br>
+            🥩 Фудкост 27,8%, списания 12 750 ₽ <span class="bad">(15,2% выручки)</span><br>
+            👥 Гостей: 135, на гостя 623 ₽, за столом в среднем 54 мин<br>
+            📉 Провал 20:00–22:00: в зале было 8 гостей, обычно 16 — гостей вдвое меньше<br>
+            📅 Прогноз на чт, 29 октября: пик 19:00–22:00, до 20 гостей одновременно (41% зала)
+            <span class="sub">Официантов: днём 2, вечером 3 (по норме 10 гостей на одного)</span>
             <span class="gap"></span>
-            <b>Новое за день: 2</b>
+            <b>Новое за день: 1</b>
             <span class="z">🔪 Кухня</span>
-            • 🔴 Списания 26 октября в 7,7 раза выше обычного
-            <span class="sub">≈ 11 100 ₽ разово<br>Проверить: журнал температур холодильников за последние сутки.</span>
-            <span class="z">🍽 Зал</span>
-            • 🔴 Выручка 26 октября ниже обычной для этого дня недели на 30,5%
-            <span class="sub">≈ 28 701 ₽ разово<br>Проверить: был ли стоп-лист по ходовым позициям?</span>
+            • 🔴 Списания 28 октября в 6,7 раза выше обычного
+            <span class="sub">≈ 10 850 ₽ разово<br>Проверить: журнал температур холодильников за последние сутки.</span>
             <span class="gap"></span>
-            ⚠️ Не решено с прошлых дней: 7 проблем. Если ничего не менять — это <span class="idea"><b>≈ 85 187 ₽ потерь в месяц</b></span>. Подробно — в панели.
+            ⚠️ Не решено с прошлых дней: 9 проблем. Если ничего не менять — это <span class="idea"><b>≈ 79 792 ₽ потерь в месяц</b></span>. Подробно — в панели.
           </div>
         </div>
         <p class="muted" style="margin-top:10px">Пример на учебных данных. Так выглядит сообщение, которое управляющий получает каждое утро.</p>
@@ -731,29 +761,81 @@
   try { if (scene.contentDocument && scene.contentDocument.readyState === 'complete') watchScene(); } catch (e) {}
   window.addEventListener('resize', fitScene);
 
-  // 8. Инфографика: потери за 30 дней без ПРОТОКОЛА и с ним (рисуется, когда долистали)
-  const LOSS = 85187, DAYS = 30, FIX_DAY = 2;
-  const chart = document.getElementById('leakChart');
+  // 7б. Ролик: играет без звука, только когда виден; нажатие — пауза/продолжить; без анимаций — только по нажатию
+  (function () {
+    const v = document.getElementById('promoVideo'); if (!v) return;
+    const tall = window.matchMedia('(max-width: 640px)').matches;   // выбор один раз при загрузке
+    v.poster = tall ? v.dataset.tallPoster : v.dataset.widePoster;
+    v.src = tall ? v.dataset.tall : v.dataset.wide;
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let userPaused = still, autoPause = false;
+    v.controls = true; v.loop = true;   // полоса управления: пауза, перемотка, полный экран
+    v.addEventListener('pause', () => { if (!autoPause && !v.ended) userPaused = true; autoPause = false; });
+    v.addEventListener('play', () => { userPaused = false; });
+    v.addEventListener('ended', () => { v.currentTime = 0; v.play().catch(() => {}); });   // на всякий случай — по кругу
+    if (!('IntersectionObserver' in window)) { if (!still) { v.preload = 'auto'; v.play().catch(() => {}); } return; }
+    new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting && !userPaused) { v.preload = 'auto'; v.play().catch(() => {}); }
+      else if (!e.isIntersecting && !v.paused) { autoPause = true; v.pause(); }
+    }), { threshold: .4 }).observe(v);
+  })();
+
+  // 8. Инфографика: потери за 30 дней без ПРОТОКОЛА и с ним. Несколько примеров по кругу, пока график на экране.
+  //    Суммы — повторяющиеся проблемы учебного ресторана из панели ПРОТОКОЛА 2.8 (вместе ≈ 79 792 ₽/мес).
+  const LEAKS = [
+    { tab: 'Все вместе',    loss: 79792, what: 'Пять повторяющихся проблем учебного ресторана', sub: 'скидки, удаления после пречека, себестоимость и закупки', late: 'инвентаризация' },
+    { tab: 'Скидки',        loss: 36449, what: 'Официант: доля скидок в 7,4 раза выше, чем у коллег', sub: 'без ПРОТОКОЛА — видно только в отчёте за месяц', late: 'отчёт за месяц' },
+    { tab: 'Чеки',          loss: 17657, what: 'Частые удаления блюд после пречека без списания', sub: 'без ПРОТОКОЛА — всплывает на инвентаризации', late: 'инвентаризация' },
+    { tab: 'Себестоимость', loss: 11334, what: '«Паста карбонара»: себестоимость порции выросла на 9,4%', sub: 'без ПРОТОКОЛА — заметно только при расчёте фудкоста', late: 'расчёт фудкоста' },
+    { tab: 'Закупки',       loss: 7950,  what: 'Закупочная цена «Сливки 33%» выросла на 31%', sub: 'без ПРОТОКОЛА — заметно при сверке накладных', late: 'сверка накладных' },
+  ];
+  const DAYS = 30, FIX_DAY = 2, HOLD = 3600, ANIM = 3000;
+  const chart = document.getElementById('leakChart'), leakBox = chart.closest('.leak');
   const lnBad = document.getElementById('lnBad'), lnGood = document.getElementById('lnGood'), lnDiff = document.getElementById('lnDiff');
-  let prog = 0, played = false;
+  const leakTabs = document.getElementById('leakTabs'), leakWhat = document.getElementById('leakWhat');
+  const stillChart = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let cur = 0, prog = 1, visible = false, started = false, timer = null, raf = 0, pausedUntil = 0;
+  const niceMax = v => [9000, 12000, 15000, 21000, 30000, 45000, 60000, 90000, 120000].find(m => m >= v * 1.1) || Math.ceil(v * 1.1 / 30000) * 30000;
+  const tk = v => v ? (v / 1000).toLocaleString('ru-RU') + ' тыс' : '0';
+  LEAKS.forEach((L, i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.innerHTML = L.tab + '<i></i>';
+    b.addEventListener('click', () => { pausedUntil = performance.now() + 15000; show(i, true); });   // выбрали сами — 15 с не переключаем
+    leakTabs.appendChild(b);
+  });
+  // дневные потери: будни меньше, пятница–суббота больше, плюс случайный разброс (одинаковый при каждом показе)
+  const CURVES = {};
+  function curves(i) {
+    if (CURVES[i]) return CURVES[i];
+    let seed = 7 + i * 101; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const week = [.8, .85, .95, 1.05, 1.35, 1.45, .75];
+    const daily = Array.from({ length: DAYS }, (_, d) => week[(d + 3) % 7] * (.7 + rnd() * .6));
+    const sum = daily.reduce((a, b) => a + b, 0), L = LEAKS[i].loss;
+    const bad = [0], good = [0];
+    daily.forEach((v, d) => {
+      const day = L * v / sum; bad.push(bad[d] + day);
+      good.push(good[d] + (d < FIX_DAY ? day : day * (.03 + rnd() * .07)));   // после сводки — мелочи в пределах обычного
+    });
+    const at = (arr, d) => { const k = Math.min(DAYS, Math.max(0, d)), a = Math.floor(k), f = k - a; return a >= DAYS ? arr[DAYS] : arr[a] + (arr[a + 1] - arr[a]) * f; };
+    return CURVES[i] = { bad, good, at };
+  }
   function drawChart() {
+    const S = LEAKS[cur], LOSS = S.loss, MAX = niceMax(LOSS);
     const W = chart.clientWidth || 600, small = W < 520;
     const H = small ? 230 : 300;
     const L = small ? 46 : 62, R = small ? 14 : 24, T = 28, B = 30;
     const x = d => L + (W - L - R) * d / DAYS;
-    const y = v => T + (H - T - B) * (1 - v / 90000);
-    const bad = d => LOSS * d / DAYS, good = d => LOSS * Math.min(d, FIX_DAY) / DAYS;
+    const y = v => T + (H - T - B) * (1 - v / MAX);
+    const C = curves(cur), bad = d => C.at(C.bad, d), good = d => C.at(C.good, d);
     const dEnd = DAYS * prog;
-    const pts = f => { const a = []; for (let d = 0; d <= dEnd + 1e-6; d += .25) a.push(`${x(d).toFixed(1)},${y(f(d)).toFixed(1)}`); a.push(`${x(dEnd).toFixed(1)},${y(f(dEnd)).toFixed(1)}`); return a.join(' '); };
+    const pts = f => { const a = []; for (let d = 0; d <= dEnd + 1e-6; d += 1) a.push(`${x(d).toFixed(1)},${y(f(d)).toFixed(1)}`); a.push(`${x(dEnd).toFixed(1)},${y(f(dEnd)).toFixed(1)}`); return a.join(' '); };
     const fs = small ? 11 : 12.5;
     let g = '';
-    [0, 30000, 60000, 90000].forEach(v => {
+    [0, MAX / 3, MAX * 2 / 3, MAX].forEach(v => {
       g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="rgba(243,236,228,.1)"/>`;
-      g += `<text x="${L - 8}" y="${y(v) + 4}" text-anchor="end" font-size="${fs}" fill="#b9ada0">${v ? (v / 1000) + ' тыс' : '0'}</text>`;
+      g += `<text x="${L - 8}" y="${y(v) + 4}" text-anchor="end" font-size="${fs}" fill="#b9ada0">${tk(v)}</text>`;
     });
     [1, 10, 20, 30].forEach(d => g += `<text x="${x(d)}" y="${H - 8}" text-anchor="middle" font-size="${fs}" fill="#b9ada0">${d === 30 ? '30 день' : d}</text>`);
-    // площадь «упущенных» денег между линиями
-    if (dEnd > 0) {
+    if (dEnd > 0) {   // площадь «упущенных» денег между линиями
       const top = pts(bad), bottom = pts(good).split(' ').reverse().join(' ');
       g += `<polygon points="${top} ${bottom}" fill="rgba(255,122,110,.12)"/>`;
       g += `<polyline points="${pts(bad)}" fill="none" stroke="#ff7a6e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
@@ -761,29 +843,51 @@
       g += `<circle cx="${x(dEnd)}" cy="${y(bad(dEnd))}" r="5" fill="#ff7a6e"/>`;
       g += `<circle cx="${x(dEnd)}" cy="${y(good(dEnd))}" r="5" fill="#f2a33a"/>`;
     }
-    // метки событий
-    if (dEnd >= 1) {
-      g += `<line x1="${x(1)}" x2="${x(1)}" y1="${y(good(1)) - 8}" y2="${y(30000) + 10}" stroke="#f2a33a" stroke-dasharray="3 4" opacity=".7"/>`;
-      g += `<text x="${x(1) - 4}" y="${y(30000)}" font-size="${fs + 1}" font-weight="700" fill="#f2a33a">☀️ утром — сводка</text>`;
+    if (dEnd >= 1) {   // метки событий
+      g += `<line x1="${x(1)}" x2="${x(1)}" y1="${y(good(1)) - 8}" y2="${y(MAX / 3) + 10}" stroke="#f2a33a" stroke-dasharray="3 4" opacity=".7"/>`;
+      g += `<text x="${x(1) - 4}" y="${y(MAX / 3)}" font-size="${fs + 1}" font-weight="700" fill="#f2a33a">☀️ утром — сводка</text>`;
     }
-    if (prog >= 1) {
-      const lx = x(DAYS);
-      g += `<text x="${lx}" y="${y(LOSS) - 12}" text-anchor="end" font-size="${fs + 1}" font-weight="700" fill="#ff7a6e">📋 инвентаризация: −${rub(LOSS)}</text>`;
-    }
+    if (prog >= 1) g += `<text x="${x(DAYS)}" y="${y(LOSS) - 12}" text-anchor="end" font-size="${fs + 1}" font-weight="700" fill="#ff7a6e">📋 ${S.late}: −${rub(LOSS)}</text>`;
     chart.innerHTML = `<svg viewBox="0 0 ${W} ${H}" height="${H}" xmlns="http://www.w3.org/2000/svg" font-family="Manrope, system-ui, sans-serif">${g}</svg>`;
     lnBad.textContent = rub(bad(dEnd)); lnGood.textContent = rub(good(dEnd)); lnDiff.textContent = rub(bad(dEnd) - good(dEnd));
   }
-  function playChart() {
-    if (played) return; played = true;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { prog = 1; drawChart(); return; }
-    const t0 = performance.now(), dur = 3200;
-    (function step(t) { prog = Math.min(1, (t - t0) / dur); prog = 1 - Math.pow(1 - prog, 2); drawChart(); if ((t - t0) < dur) requestAnimationFrame(step); else { prog = 1; drawChart(); } })(t0);
+  function paintTabs(k) {
+    [...leakTabs.children].forEach((b, i) => {
+      b.classList.toggle('on', i === cur); b.setAttribute('aria-pressed', String(i === cur));
+      b.firstElementChild.style.width = i === cur ? (k * 100).toFixed(1) + '%' : '0';   // полоска — сколько осталось до следующего примера
+    });
   }
-  drawChart();
-  if ('IntersectionObserver' in window) {
-    const cio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { playChart(); cio.disconnect(); } }), { threshold: .45 });
-    cio.observe(chart);
-  } else { prog = 1; drawChart(); }
+  function setText() { const S = LEAKS[cur]; leakWhat.innerHTML = `${S.what}<small>${S.sub}</small>`; }
+  function stop() { cancelAnimationFrame(raf); clearTimeout(timer); }
+  function show(i, user) {
+    stop();
+    const go = () => {
+      cur = i; setText(); leakBox.classList.remove('swap');
+      const pill = leakTabs.children[cur];   // активная вкладка видна и на узком экране (двигаем только полоску вкладок)
+      leakTabs.scrollTo({ left: Math.max(0, pill.offsetLeft - leakTabs.offsetLeft - 8), behavior: stillChart ? 'auto' : 'smooth' });
+      if (stillChart) { prog = 1; drawChart(); paintTabs(0); return; }
+      const t0 = performance.now();
+      (function step(t) {
+        const e = t - t0; prog = 1 - Math.pow(1 - Math.min(1, e / ANIM), 2); drawChart();
+        paintTabs(Math.min(1, e / (ANIM + HOLD)));
+        if (e < ANIM + HOLD) { raf = requestAnimationFrame(step); return; }
+        const wait = pausedUntil - performance.now();
+        if (visible) { if (wait > 0) timer = setTimeout(() => { if (visible) next(); }, wait); else next(); }
+      })(t0);
+    };
+    if (started && !user && !stillChart) { leakBox.classList.add('swap'); timer = setTimeout(go, 320); } else go();
+    started = true;
+  }
+  function next() { show((cur + 1) % LEAKS.length); }
+  setText(); drawChart(); paintTabs(0);   // до появления на экране — первый пример целиком
+  if ('IntersectionObserver' in window && !stillChart) {
+    new IntersectionObserver(es => es.forEach(e => {
+      const was = visible; visible = e.isIntersecting;
+      if (visible && !started) show(0);
+      else if (visible && !was) next();                       // вернулись к графику — следующий пример
+      else if (!visible) { stop(); prog = 1; drawChart(); }   // ушли — замираем на целом графике
+    }), { threshold: .45 }).observe(chart);
+  } else { started = true; }
   window.addEventListener('resize', drawChart);
 
   // 7. Форма заявки → Cloudflare-воркер → Telegram

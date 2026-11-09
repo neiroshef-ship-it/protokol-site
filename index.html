@@ -807,13 +807,16 @@
   function curves(i) {
     if (CURVES[i]) return CURVES[i];
     let seed = 7 + i * 101; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-    const week = [.8, .85, .95, 1.05, 1.35, 1.45, .75];
-    const daily = Array.from({ length: DAYS }, (_, d) => week[(d + 3) % 7] * (.7 + rnd() * .6));
+    const week = [.55, .65, .85, 1.1, 1.8, 2.0, .6];   // пн…вс: выходные заметно тяжелее
+    const daily = Array.from({ length: DAYS }, (_, d) => week[(d + 3) % 7] * (.45 + rnd() * 1.1));
     const sum = daily.reduce((a, b) => a + b, 0), L = LEAKS[i].loss;
     const bad = [0], good = [0];
     daily.forEach((v, d) => {
       const day = L * v / sum; bad.push(bad[d] + day);
-      good.push(good[d] + (d < FIX_DAY ? day : day * (.03 + rnd() * .07)));   // после сводки — мелочи в пределах обычного
+      // с ПРОТОКОЛОМ: первые дни — та же потеря; дальше раз в 5–7 дней всплывает новая мелочь,
+      // утром она в сводке и на следующий день закрыта — линия делает «ступеньку» и снова почти ровная
+      const bump = d >= FIX_DAY + 2 && (d % 6 === 4) ? day * (.3 + rnd() * .3) : 0;
+      good.push(good[d] + (d < FIX_DAY ? day : bump + day * (.03 + rnd() * .06)));
     });
     const at = (arr, d) => { const k = Math.min(DAYS, Math.max(0, d)), a = Math.floor(k), f = k - a; return a >= DAYS ? arr[DAYS] : arr[a] + (arr[a + 1] - arr[a]) * f; };
     return CURVES[i] = { bad, good, at };

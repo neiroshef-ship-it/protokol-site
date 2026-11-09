@@ -53,9 +53,10 @@
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
   /* шапка: фото, название, бейдж пилота */
-  .top { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; }
+  .top { display: flex; align-items: center; gap: 12px 14px; }
+  .top > div { flex: 1; min-width: 0; }
   .avatar {
-    width: 56px; height: 56px; flex: none;
+    width: 68px; height: 68px; flex: none;
     border-radius: 50%;
     object-fit: cover;              /* фото не сплющится в круге */
     border: 2px solid var(--accent);
@@ -71,7 +72,8 @@
     line-height: 1.1;
   }
   .logo span { color: var(--accent); }
-  .by { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+  .by { margin: 4px 0 0; font-size: 14px; line-height: 1.4; color: var(--muted); }
+  .by b { color: var(--ink); font-weight: 700; }
   .badge {
     display: inline-block;
     margin: 0 0 0 auto;
@@ -238,10 +240,123 @@
   .thanks b { display: block; font-family: Unbounded, system-ui, sans-serif; font-size: 18px; color: var(--accent); margin-bottom: 6px; }
   .thanks p { margin: 0; font-size: 15px; line-height: 1.5; }
 
+  /* ---------- заголовок-кнопка «Ваш ресторан — под вашим контролем» ---------- */
+  .hook {
+    display: block; width: 100%; margin: 0 0 10px; padding: 0;
+    border: 0; background: none; color: var(--ink); text-align: left; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .hook-title {
+    display: block; margin: 0;
+    font-family: Unbounded, system-ui, sans-serif; font-weight: 700;
+    font-size: 25px; line-height: 1.2; letter-spacing: .2px;
+  }
+  .hook-title em { font-style: normal; color: var(--accent); }
+  .hook-cta {
+    display: inline-flex; align-items: center; gap: 10px; margin-top: 12px;
+    padding: 10px 16px 10px 18px; border-radius: 999px;
+    background: var(--accent); color: var(--accent-ink);
+    font-size: 15px; font-weight: 700;
+    box-shadow: 0 8px 24px rgba(242, 163, 58, .28);
+    transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
+  }
+  .hook-cta svg { width: 18px; height: 18px; transition: transform .2s ease; }
+  .hook:hover .hook-cta { background: #f5b153; box-shadow: 0 10px 30px rgba(242, 163, 58, .4); }
+  .hook:hover .hook-cta svg { transform: translateX(4px); }
+  .hook:active .hook-cta { transform: scale(.98); }
+  .hook:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; border-radius: 8px; }
+  .hook-cta { animation: pulse 2.6s ease-in-out 1.5s infinite; }
+  @keyframes pulse { 0%, 100% { box-shadow: 0 8px 24px rgba(242,163,58,.28); } 50% { box-shadow: 0 8px 24px rgba(242,163,58,.28), 0 0 0 8px rgba(242,163,58,.12); } }
+
+  /* ---------- общий вид секций ниже первого экрана ---------- */
+  .sec { margin-top: 44px; }
+  .sec-title { margin: 0 0 6px; text-align: center; font-family: Unbounded, system-ui, sans-serif; font-size: 21px; font-weight: 700; line-height: 1.25; }
+  .sec-title em { font-style: normal; color: var(--accent); }
+  .sec-sub { margin: 0 auto 18px; max-width: 640px; text-align: center; color: var(--muted); font-size: 15px; line-height: 1.5; }
+
+  /* ---------- инфографика «Одна проблема за месяц» ---------- */
+  .leak { padding: 18px 14px 16px; border-radius: var(--radius); background: var(--card); border: 1px solid var(--line); }
+  .leak-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0 4px 6px; font-size: 14px; font-weight: 600; }
+  .leak-legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .leak-legend i { width: 22px; height: 4px; border-radius: 2px; display: inline-block; }
+  .leak-chart { width: 100%; }
+  .leak-chart svg { display: block; width: 100%; overflow: visible; }
+  .leak-nums { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 12px; }
+  .leak-num { padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: rgba(0,0,0,.18); }
+  .leak-num small { display: block; color: var(--muted); font-size: 13px; line-height: 1.4; }
+  .leak-num b { display: block; margin-top: 2px; font-family: Unbounded, system-ui, sans-serif; font-size: 22px; font-variant-numeric: tabular-nums; }
+  .leak-num.bad b { color: #ff7a6e; }
+  .leak-num.good b { color: var(--accent); }
+  .leak-num.diff { background: rgba(242,163,58,.08); border-color: rgba(242,163,58,.4); }
+  .leak-num.diff b { color: var(--ink); }
+  .leak-note { margin: 12px 4px 0; font-size: 12.5px; line-height: 1.5; color: rgba(185,173,160,.8); }
+
+  /* ---------- сравнение «без / с ПРОТОКОЛОМ» ---------- */
+  .vs { display: grid; gap: 12px; }
+  .vs-col { padding: 18px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .vs-col h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font-family: Unbounded, system-ui, sans-serif; font-size: 17px; }
+  .vs-col h3 span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; font-family: Manrope, system-ui, sans-serif; font-size: 16px; }
+  .vs-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .vs-col li { display: grid; grid-template-columns: 22px 1fr; gap: 10px; font-size: 15px; line-height: 1.45; }
+  .vs-col li svg { width: 20px; height: 20px; margin-top: 1px; }
+  .vs-col li b { font-weight: 700; }
+  .vs-col li small { display: block; color: var(--muted); font-size: 13.5px; }
+  .vs-no { background: rgba(255, 90, 78, .04); border-color: rgba(255, 90, 78, .25); }
+  .vs-no h3 span { background: rgba(255, 90, 78, .15); color: #ff8a7e; }
+  .vs-no li svg { color: #ff7a6e; }
+  .vs-no li { color: #d9cfc5; }
+  .vs-yes { background: rgba(242, 163, 58, .06); border-color: rgba(242, 163, 58, .45); box-shadow: 0 10px 34px rgba(242, 163, 58, .08); }
+  .vs-yes h3 span { background: var(--accent); color: var(--accent-ink); }
+  .vs-yes li svg { color: var(--accent); }
+
+  /* ---------- об авторе ---------- */
+  .author { margin-top: 30px; padding: 20px; border-radius: var(--radius); background: var(--card); border: 1px solid var(--line); }
+  .author-head { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+  .author-head img { width: 96px; height: 96px; flex: none; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); box-shadow: 0 0 0 6px rgba(242,163,58,.1), 0 0 30px rgba(242,163,58,.25); background: #2a2420; }
+  .author-head b { display: block; font-family: Unbounded, system-ui, sans-serif; font-size: 19px; }
+  .author-head small { display: block; margin-top: 4px; color: var(--accent); font-size: 14px; font-weight: 600; }
+  .author p { margin: 0 0 10px; font-size: 15px; line-height: 1.6; color: #e3d9cf; }
+  .author p:last-child { margin-bottom: 0; }
+
+  /* ---------- финал: связаться ---------- */
+  .final { margin-top: 44px; padding: 26px 16px 20px; border-radius: 20px; text-align: center;
+           background: radial-gradient(ellipse 90% 80% at 50% 0%, rgba(242,163,58,.16), transparent 70%), var(--card);
+           border: 1px solid rgba(242,163,58,.35); }
+  .final .sec-sub { margin-bottom: 16px; }
+  .final .tiles { margin-top: 0; }
+  button.tile { font-family: inherit; cursor: pointer; width: 100%; }
+
+  /* ---------- всплывающее окно заявки ---------- */
+  .lead-dialog {
+    width: min(460px, calc(100% - 24px)); max-height: calc(100dvh - 24px);
+    margin: auto; padding: 0; overflow: auto;
+    border: 1px solid rgba(242,163,58,.4); border-radius: 18px;
+    background: #211b16; color: var(--ink);
+    box-shadow: 0 30px 80px rgba(0,0,0,.6);
+  }
+  .lead-dialog::backdrop { background: rgba(10, 8, 6, .72); backdrop-filter: blur(4px); }
+  .lead-dialog[open] { animation: pop .22s ease-out; }
+  @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+  .lead-dialog .lead { margin: 0; padding: 22px 18px 18px; }
+  .lead-dialog .lead form { padding: 0; background: none; border: 0; }
+  .dlg-close { position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; border: 0; border-radius: 50%; background: rgba(255,255,255,.07); color: var(--ink); font-size: 22px; line-height: 1; cursor: pointer; }
+  .dlg-close:hover { background: rgba(255,255,255,.14); }
+  .dlg-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .lead-dialog .lead h2 { padding: 0 34px; }
+
   @media (min-width: 640px) {
     .tiles { grid-template-columns: repeat(4, 1fr); }
     .tile { min-height: 108px; }
     .logo { font-size: 30px; }
+    .hook-title { font-size: 31px; }
+    .sec-title { font-size: 25px; }
+    .leak { padding: 22px 22px 18px; }
+    .leak-nums { grid-template-columns: repeat(3, 1fr); }
+    .author-head img { width: 112px; height: 112px; }
+  }
+  @media (min-width: 760px) {
+    .vs { grid-template-columns: 1fr 1fr; }
+    .final { padding: 32px 28px 26px; }
   }
   /* компьютер: две колонки */
   @media (min-width: 1000px) {
@@ -249,10 +364,12 @@
     .hero { grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; align-items: start; }
     .about { font-size: 17px; }
     /* сцена не выше экрана: тогда плитки видны без прокрутки и на ноутбуке */
-    .scene { max-width: max(560px, calc((100vh - 470px) * 1.5625)); height: calc(min(100vw - 432px, 820px) * .64 + 190px); }
-    .tile { min-height: 92px; }
+    .scene { max-width: max(560px, calc((100vh - 420px) * 1.5625)); height: calc(min(100vw - 432px, 820px) * .64 + 190px); }
+    .avatar { width: 76px; height: 76px; }
     .side { position: sticky; top: 16px; }
+    .hook-title { font-size: 34px; }
     .lower { grid-template-columns: 1fr 1fr; align-items: start; }
+    .lower .author { margin-top: 66px; }
   }
 </style>
 </head>
@@ -261,17 +378,23 @@
 
   <!-- Шапка -->
   <header class="top reveal">
-    <img class="avatar" src="avatar1.png" alt="Николай, автор ПРОТОКОЛА" width="56" height="56">
+    <img class="avatar" src="avatar1.png" alt="Николай, автор ПРОТОКОЛА" width="76" height="76">
     <div>
       <h1 class="logo">ПРОТО<span>КОЛ</span></h1>
-      <p class="by">Николай · шеф-повар, 5 лет на кухне</p>
+      <p class="by"><b>Николай</b> · шеф-повар. Знаю ресторан изнутри — и где в нём теряются деньги</p>
     </div>
   </header>
 
   <div class="hero">
 
-    <!-- ЛЕВАЯ КОЛОНКА: 3D «Как работает ПРОТОКОЛ» + плитки связи -->
+    <!-- ЛЕВАЯ КОЛОНКА: заголовок-кнопка (открывает заявку) + 3D «Как работает ПРОТОКОЛ» -->
     <section class="stage reveal" aria-labelledby="howTitle">
+      <button type="button" class="hook" data-lead>
+        <span class="hook-title">Ваш ресторан — <em>под вашим контролем</em></span>
+        <span class="hook-cta">Узнать, где уходят мои деньги
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </button>
       <p class="about">
         ИИ-контроль потерь ресторана на&nbsp;данных&nbsp;iiko.
         <span>Каждое утро — где вчера ушли деньги: фудкост, списания, скидки, недостачи.</span>
@@ -279,31 +402,6 @@
       <h2 id="howTitle" class="sr-only">Как работает ПРОТОКОЛ</h2>
       <iframe class="scene" id="scene3d" src="protokol-3d.html" title="Как работает ПРОТОКОЛ"></iframe>
 
-    <nav class="tiles" aria-label="Связаться">
-      <!-- Telegram -->
-      <a class="tile tile--main" href="https://t.me/Panda_koal" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3c.3-1.2-.9-2.2-2-1.7L2.8 9.3c-1.2.5-1.1 2.2.1 2.6l4.3 1.4 1.7 5.3c.3.9 1.4 1.2 2.1.5l2.4-2.3 4.4 3.2c.9.7 2.2.2 2.5-.9L21.9 4.3zM9.6 13.2l7.9-5.8-6.2 6.8-.3 3-1.4-4z"/></svg>
-        Telegram
-      </a>
-
-      <!-- Заявка: прокручивает к форме внизу -->
-      <a class="tile" href="#lead">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4h6M9 4a2 2 0 0 0-2 2v0H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-1v0a2 2 0 0 0-2-2M9 13l2 2 4-4"/></svg>
-        Оставить заявку
-      </a>
-
-      <!-- WhatsApp: номер только цифрами, без + и пробелов; текст после ?text= — готовое первое сообщение -->
-      <a class="tile" href="https://wa.me/79958993803?text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5!%20%D0%A5%D0%BE%D1%87%D1%83%20%D1%83%D0%B7%D0%BD%D0%B0%D1%82%D1%8C%20%D0%BF%D1%80%D0%BE%20%D0%BF%D0%B8%D0%BB%D0%BE%D1%82%20%D0%9F%D0%A0%D0%9E%D0%A2%D0%9E%D0%9A%D0%9E%D0%9B%D0%90" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>
-        WhatsApp
-      </a>
-
-      <!-- Почта: тот же адрес — в переменной EMAIL внизу, в <script> -->
-      <a class="tile" id="mailBtn" href="mailto:neiroshef@gmail.com?subject=%D0%9F%D0%B8%D0%BB%D0%BE%D1%82%20%D0%9F%D0%A0%D0%9E%D0%A2%D0%9E%D0%9A%D0%9E%D0%9B%D0%90">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
-        Почта
-      </a>
-    </nav>
     </section>
 
     <!-- ПРАВАЯ КОЛОНКА: калькулятор, презентация, галочки -->
@@ -336,6 +434,54 @@
       </ul>
     </aside>
   </div>
+
+
+  <!-- ИНФОГРАФИКА: одна незамеченная проблема за 30 дней -->
+  <section class="sec reveal" aria-labelledby="leakTitle">
+    <h2 class="sec-title" id="leakTitle">Деньги уходят <em>каждый день</em></h2>
+    <p class="sec-sub">Сколько стоит проблема, если найти её через месяц на инвентаризации — и если на следующее утро.</p>
+    <div class="leak">
+      <div class="leak-legend" aria-hidden="true">
+        <span><i style="background:#ff7a6e"></i>Без ПРОТОКОЛА</span>
+        <span><i style="background:var(--accent)"></i>С ПРОТОКОЛОМ</span>
+      </div>
+      <div class="leak-chart" id="leakChart" role="img" aria-label="График: без ПРОТОКОЛА потери за 30 дней растут до 85 187 рублей, с ПРОТОКОЛОМ проблему находят утром и потери останавливаются на 5 679 рублях"></div>
+      <div class="leak-nums">
+        <div class="leak-num bad"><small>Без ПРОТОКОЛА — узнали на 30-й день</small><b id="lnBad">85 187 ₽</b></div>
+        <div class="leak-num good"><small>С ПРОТОКОЛОМ — закрыли на 2-й день</small><b id="lnGood">5 679 ₽</b></div>
+        <div class="leak-num diff"><small>Остаётся в ресторане за месяц</small><b id="lnDiff">79 508 ₽</b></div>
+      </div>
+      <p class="leak-note">Пример на учебных данных ПРОТОКОЛА: открытые проблемы стоят ≈ 85 187 ₽ в месяц, если ничего не менять. Считаем, что после утренней сводки их устранили на 2-й день. Это иллюстрация, а не обещание: у каждого ресторана свои цифры.</p>
+    </div>
+  </section>
+
+  <!-- СРАВНЕНИЕ: без ПРОТОКОЛА / с ПРОТОКОЛОМ -->
+  <section class="sec reveal" aria-labelledby="vsTitle">
+    <h2 class="sec-title" id="vsTitle">Без ПРОТОКОЛА и <em>с ним</em></h2>
+    <p class="sec-sub">Какие данные вы получаете и на чём экономите.</p>
+    <div class="vs">
+      <div class="vs-col vs-no">
+        <h3><span aria-hidden="true">✕</span>Без ПРОТОКОЛА</h3>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span><b>О потерях узнаёте через месяц</b><small>на инвентаризации, когда деньги уже ушли</small></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span><b>Отчёты iiko разбираете сами</b><small>выручка, списания, скидки — в разных отчётах, а времени нет</small></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span><b>Почему вырос фудкост — догадки</b><small>цена поставщика? техкарта? воровство? — непонятно, где искать</small></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span><b>Скидки и удаления после пречека не видно</b><small>пока специально не начнёте проверять</small></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span><b>Проблема повторяется каждый день</b><small>и каждый день стоит денег</small></span></li>
+        </ul>
+      </div>
+      <div class="vs-col vs-yes">
+        <h3><span aria-hidden="true">✓</span>С ПРОТОКОЛОМ</h3>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span><b>Сводка в Telegram каждое утро</b><small>что случилось вчера — до начала смены</small></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span><b>ИИ сам разбирает данные iiko</b><small>и сравнивает с вашими обычными днями</small></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span><b>Отклонение — сразу с суммой в рублях</b><small>фудкост, списания, скидки, недостачи</small></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span><b>Подсказка, что проверить</b><small>например: «журнал температур холодильников»</small></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg><span><b>Проблему закрываете на следующий день</b><small>потери не копятся месяц</small></span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
 
   <div class="lower">
     <section class="tools reveal" aria-labelledby="toolsTitle">
@@ -382,7 +528,7 @@
             • 🔴 Выручка 26 октября ниже обычной для этого дня недели на 30,5%
             <span class="sub">≈ 28 701 ₽ разово<br>Проверить: был ли стоп-лист по ходовым позициям?</span>
             <span class="gap"></span>
-            ⏳ Ещё открыто: 7 проблем, повторяющиеся <span class="idea"><b>≈ 85 187 ₽ в месяц</b></span> — в панели и в недельной сводке.
+            ⚠️ Не решено с прошлых дней: 7 проблем. Если ничего не менять — это <span class="idea"><b>≈ 85 187 ₽ потерь в месяц</b></span>. Подробно — в панели.
           </div>
         </div>
         <p class="muted" style="margin-top:10px">Пример на учебных данных. Так выглядит сообщение, которое управляющий получает каждое утро.</p>
@@ -390,11 +536,62 @@
       </div>
     </section>
 
-    <!-- Форма заявки: отправляется в Cloudflare-воркер, он пересылает её в Telegram -->
-    <section class="lead reveal" id="lead" aria-labelledby="leadTitle">
+    <!-- ОБ АВТОРЕ -->
+    <section class="author reveal" aria-labelledby="authorTitle">
+      <div class="author-head">
+        <img src="avatar1.png" alt="Николай, автор ПРОТОКОЛА" width="112" height="112" loading="lazy">
+        <div><b id="authorTitle">Николай</b><small>шеф-повар, автор ПРОТОКОЛА</small></div>
+      </div>
+      <p>Я шеф-повар и знаю ресторан изнутри — как в нём незаметно уходят деньги: списания, продукты «в никуда», скидки после пречека. В iiko всё это есть, но разбирать отчёты каждый день управляющему некогда.</p>
+      <p>Поэтому я сделал ПРОТОКОЛ: он сам читает данные iiko и каждое утро присылает короткую сводку — где вчера ушли деньги и что проверить.</p>
+      <p>Подключаю сам и остаюсь на связи лично.</p>
+    </section>
+  </div>
+
+
+  <!-- ФИНАЛ: связаться -->
+  <section class="final reveal" aria-labelledby="finalTitle">
+    <h2 class="sec-title" id="finalTitle">Ваш ресторан — <em>под вашим контролем</em></h2>
+    <p class="sec-sub">Оставьте заявку или напишите, как удобнее. Отвечу лично в течение дня.</p>
+      <nav class="tiles" aria-label="Связаться">
+        <!-- Заявка: открывает всплывающее окно с формой -->
+        <button type="button" class="tile tile--main" data-lead>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4h6M9 4a2 2 0 0 0-2 2v0H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-1v0a2 2 0 0 0-2-2M9 13l2 2 4-4"/></svg>
+          Оставить заявку
+        </button>
+
+        <!-- Telegram -->
+        <a class="tile" href="https://t.me/Panda_koal" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3c.3-1.2-.9-2.2-2-1.7L2.8 9.3c-1.2.5-1.1 2.2.1 2.6l4.3 1.4 1.7 5.3c.3.9 1.4 1.2 2.1.5l2.4-2.3 4.4 3.2c.9.7 2.2.2 2.5-.9L21.9 4.3zM9.6 13.2l7.9-5.8-6.2 6.8-.3 3-1.4-4z"/></svg>
+          Telegram
+        </a>
+
+
+        <!-- WhatsApp: номер только цифрами, без + и пробелов; текст после ?text= — готовое первое сообщение -->
+        <a class="tile" href="https://wa.me/79958993803?text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5!%20%D0%A5%D0%BE%D1%87%D1%83%20%D1%83%D0%B7%D0%BD%D0%B0%D1%82%D1%8C%20%D0%BF%D1%80%D0%BE%20%D0%BF%D0%B8%D0%BB%D0%BE%D1%82%20%D0%9F%D0%A0%D0%9E%D0%A2%D0%9E%D0%9A%D0%9E%D0%9B%D0%90" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>
+          WhatsApp
+        </a>
+
+        <!-- Почта: тот же адрес — в переменной EMAIL внизу, в <script> -->
+        <a class="tile" id="mailBtn" href="mailto:neiroshef@gmail.com?subject=%D0%9F%D0%B8%D0%BB%D0%BE%D1%82%20%D0%9F%D0%A0%D0%9E%D0%A2%D0%9E%D0%9A%D0%9E%D0%9B%D0%90">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          Почта
+        </a>
+      </nav>
+  </section>
+
+  <footer>© ПРОТОКОЛ, 2026</footer>
+</main>
+
+<!-- Всплывающее окно с формой заявки (открывают кнопки с data-lead) -->
+<dialog class="lead-dialog" id="leadDialog" aria-labelledby="leadTitle">
+  <button type="button" class="dlg-close" id="leadClose" aria-label="Закрыть">×</button>
+<!-- Форма заявки: отправляется в Cloudflare-воркер, он пересылает её в Telegram -->
+  <section class="lead" id="lead" aria-labelledby="leadTitle">
       <h2 id="leadTitle">Оставить заявку</h2>
       <p class="muted sub">Отвечу в течение дня и расскажу, как пройдёт пилот в вашем ресторане.</p>
-      <form id="leadForm" novalidate>
+      <form id="leadForm" novalidate method="dialog">
         <label class="field"><span>Как к вам обращаться</span><input type="text" name="name" maxlength="80" autocomplete="name" placeholder="Имя"></label>
         <label class="field"><span>Telegram или телефон <b>*</b></span><input type="text" name="contact" maxlength="80" autocomplete="tel" placeholder="@username или +7…" required></label>
         <label class="field"><span>Ресторан</span><input type="text" name="restaurant" maxlength="120" autocomplete="organization" placeholder="Название и район"></label>
@@ -410,10 +607,7 @@
         <p>Спасибо! Свяжусь с вами в течение дня.</p>
       </div>
     </section>
-  </div>
-
-  <footer>© ПРОТОКОЛ, 2026</footer>
-</main>
+</dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite">Почта скопирована</div>
 
@@ -422,8 +616,35 @@
   const EMAIL = 'neiroshef@gmail.com';
 
   // 1. Плавное появление элементов по очереди
-  const items = document.querySelectorAll('.reveal');
-  items.forEach((el, i) => setTimeout(() => el.classList.add('in'), 120 + i * 90));
+  //    первый экран — сразу по очереди, всё ниже — когда долистали
+  const items = [...document.querySelectorAll('.reveal')];
+  const fold = window.innerHeight;
+  let k = 0;
+  const later = [];
+  items.forEach(el => {
+    if (el.getBoundingClientRect().top < fold) { const d = 120 + k++ * 90; setTimeout(() => el.classList.add('in'), d); }
+    else later.push(el);
+  });
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
+    later.forEach(el => io.observe(el));
+  } else later.forEach(el => el.classList.add('in'));
+
+  // 1б. Всплывающее окно заявки: открывают заголовок и плитка «Оставить заявку»
+  const leadDialog = document.getElementById('leadDialog');
+  function openLead() {
+    if (typeof leadDialog.showModal === 'function') {
+      if (!leadDialog.open) leadDialog.showModal();
+      const first = leadDialog.querySelector('input[name="name"]');
+      if (first && window.matchMedia('(pointer: fine)').matches) first.focus();
+    } else {
+      leadDialog.setAttribute('open', ''); leadDialog.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+  document.querySelectorAll('[data-lead]').forEach(b => b.addEventListener('click', openLead));
+  document.getElementById('leadClose').addEventListener('click', () => leadDialog.close ? leadDialog.close() : leadDialog.removeAttribute('open'));
+  leadDialog.addEventListener('click', e => { if (e.target === leadDialog) leadDialog.close(); });   // клик по затемнению
+  if (location.hash === '#lead') openLead();
 
   // 2. Почта: открыть почтовую программу и скопировать адрес
   const mailBtn = document.getElementById('mailBtn');
@@ -509,6 +730,61 @@
   scene.addEventListener('load', watchScene);
   try { if (scene.contentDocument && scene.contentDocument.readyState === 'complete') watchScene(); } catch (e) {}
   window.addEventListener('resize', fitScene);
+
+  // 8. Инфографика: потери за 30 дней без ПРОТОКОЛА и с ним (рисуется, когда долистали)
+  const LOSS = 85187, DAYS = 30, FIX_DAY = 2;
+  const chart = document.getElementById('leakChart');
+  const lnBad = document.getElementById('lnBad'), lnGood = document.getElementById('lnGood'), lnDiff = document.getElementById('lnDiff');
+  let prog = 0, played = false;
+  function drawChart() {
+    const W = chart.clientWidth || 600, small = W < 520;
+    const H = small ? 230 : 300;
+    const L = small ? 46 : 62, R = small ? 14 : 24, T = 28, B = 30;
+    const x = d => L + (W - L - R) * d / DAYS;
+    const y = v => T + (H - T - B) * (1 - v / 90000);
+    const bad = d => LOSS * d / DAYS, good = d => LOSS * Math.min(d, FIX_DAY) / DAYS;
+    const dEnd = DAYS * prog;
+    const pts = f => { const a = []; for (let d = 0; d <= dEnd + 1e-6; d += .25) a.push(`${x(d).toFixed(1)},${y(f(d)).toFixed(1)}`); a.push(`${x(dEnd).toFixed(1)},${y(f(dEnd)).toFixed(1)}`); return a.join(' '); };
+    const fs = small ? 11 : 12.5;
+    let g = '';
+    [0, 30000, 60000, 90000].forEach(v => {
+      g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="rgba(243,236,228,.1)"/>`;
+      g += `<text x="${L - 8}" y="${y(v) + 4}" text-anchor="end" font-size="${fs}" fill="#b9ada0">${v ? (v / 1000) + ' тыс' : '0'}</text>`;
+    });
+    [1, 10, 20, 30].forEach(d => g += `<text x="${x(d)}" y="${H - 8}" text-anchor="middle" font-size="${fs}" fill="#b9ada0">${d === 30 ? '30 день' : d}</text>`);
+    // площадь «упущенных» денег между линиями
+    if (dEnd > 0) {
+      const top = pts(bad), bottom = pts(good).split(' ').reverse().join(' ');
+      g += `<polygon points="${top} ${bottom}" fill="rgba(255,122,110,.12)"/>`;
+      g += `<polyline points="${pts(bad)}" fill="none" stroke="#ff7a6e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+      g += `<polyline points="${pts(good)}" fill="none" stroke="#f2a33a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+      g += `<circle cx="${x(dEnd)}" cy="${y(bad(dEnd))}" r="5" fill="#ff7a6e"/>`;
+      g += `<circle cx="${x(dEnd)}" cy="${y(good(dEnd))}" r="5" fill="#f2a33a"/>`;
+    }
+    // метки событий
+    if (dEnd >= 1) {
+      g += `<line x1="${x(1)}" x2="${x(1)}" y1="${y(good(1)) - 8}" y2="${y(30000) + 10}" stroke="#f2a33a" stroke-dasharray="3 4" opacity=".7"/>`;
+      g += `<text x="${x(1) - 4}" y="${y(30000)}" font-size="${fs + 1}" font-weight="700" fill="#f2a33a">☀️ утром — сводка</text>`;
+    }
+    if (prog >= 1) {
+      const lx = x(DAYS);
+      g += `<text x="${lx}" y="${y(LOSS) - 12}" text-anchor="end" font-size="${fs + 1}" font-weight="700" fill="#ff7a6e">📋 инвентаризация: −${rub(LOSS)}</text>`;
+    }
+    chart.innerHTML = `<svg viewBox="0 0 ${W} ${H}" height="${H}" xmlns="http://www.w3.org/2000/svg" font-family="Manrope, system-ui, sans-serif">${g}</svg>`;
+    lnBad.textContent = rub(bad(dEnd)); lnGood.textContent = rub(good(dEnd)); lnDiff.textContent = rub(bad(dEnd) - good(dEnd));
+  }
+  function playChart() {
+    if (played) return; played = true;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { prog = 1; drawChart(); return; }
+    const t0 = performance.now(), dur = 3200;
+    (function step(t) { prog = Math.min(1, (t - t0) / dur); prog = 1 - Math.pow(1 - prog, 2); drawChart(); if ((t - t0) < dur) requestAnimationFrame(step); else { prog = 1; drawChart(); } })(t0);
+  }
+  drawChart();
+  if ('IntersectionObserver' in window) {
+    const cio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { playChart(); cio.disconnect(); } }), { threshold: .45 });
+    cio.observe(chart);
+  } else { prog = 1; drawChart(); }
+  window.addEventListener('resize', drawChart);
 
   // 7. Форма заявки → Cloudflare-воркер → Telegram
   const LEADS_URL = 'https://protokol-relay.neiroshef.workers.dev';

@@ -215,6 +215,9 @@
   .tg-msg .bad { color: #ffb3aa; } .tg-msg .idea { color: var(--accent); }
   .tg-msg .gap { display: block; height: 8px; }
   .tg-msg .sub { display: block; padding-left: 16px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+  .tg-kb { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 4px; }
+  .tg-kb span { display: grid; place-items: center; min-height: 36px; padding: 6px 4px; border-radius: 8px; background: #2b241e;
+                color: var(--ink); font-size: 12.5px; font-weight: 600; line-height: 1.25; text-align: center; }
 
   /* ---------- форма заявки ---------- */
   .lead { width: 100%; margin-top: 30px; text-align: left; scroll-margin-top: 20px; }
@@ -541,9 +544,11 @@
       <div class="panel" role="tabpanel" id="p-demo" aria-labelledby="t-demo">
         <div class="tg">
           <div class="tg-head"><div class="tg-ava" aria-hidden="true">П</div><div><b>ПРОТОКОЛ</b><small>бот · сегодня в 10:00</small></div></div>
-          <!-- Настоящая сводка ПРОТОКОЛА 2.8 (server/digest.py) на учебных данных, 09.11.2026 -->
+          <!-- Настоящая сводка ПРОТОКОЛА (server/digest.py, режим «только проблемы») на учебных данных, 14.11.2026:
+               нумерация новых проблем и кнопки ответа под сообщением -->
           <div class="tg-msg">
-            <b>☀️ Сводка «Ресторан на Покровке» за 28 октября, ср</b>
+            <b>☀️ Сводка «Учебный ресторан «Протокол» на Покровке» за 28 октября, ср</b><br>
+            (учебные данные)
             <span class="gap"></span>
             💰 Выручка: 84 077 ₽ <span class="bad">(−18,7% к прошлой среде)</span><br>
             🧾 Чеков: 53, средний чек 1 586 ₽<br>
@@ -555,13 +560,18 @@
             <span class="gap"></span>
             <b>Новое за день: 1</b>
             <span class="z">🔪 Кухня</span>
-            • 🔴 Списания 28 октября в 6,7 раза выше обычного
+            1. 🔴 Списания 28 октября в 6,7 раза выше обычного
             <span class="sub">≈ 10 850 ₽ разово<br>Проверить: журнал температур холодильников за последние сутки.</span>
+            <span class="gap"></span>
+            Ответьте кнопкой под сообщением — по номеру проблемы.
             <span class="gap"></span>
             ⚠️ Не решено с прошлых дней: 9 проблем. Если ничего не менять — это <span class="idea"><b>≈ 79 792 ₽ потерь в месяц</b></span>. Подробно — в панели.
           </div>
+          <div class="tg-kb" aria-label="Кнопки под сообщением">
+            <span>1 · В работу</span><span>1 · Причина известна</span><span>1 · Не проблема</span>
+          </div>
         </div>
-        <p class="muted" style="margin-top:10px">Пример на учебных данных. Так выглядит сообщение, которое управляющий получает каждое утро.</p>
+        <p class="muted" style="margin-top:10px">Пример на учебных данных. Так выглядит сообщение, которое управляющий получает каждое утро. Кнопкой под сообщением он отвечает прямо в Telegram: взял в работу, причина известна (банкет, акция) или «не проблема» — и такое же срабатывание не всплывает 30 дней.</p>
         <a class="cta-small" href="https://t.me/Panda_koal" target="_blank" rel="noopener">Хочу такую сводку</a>
       </div>
     </section>
